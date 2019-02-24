@@ -1,2 +1,3 @@
 # Clue-Less
-Foundations of Software Engineering group project
+Foundations of Software Engineering
+group project.
