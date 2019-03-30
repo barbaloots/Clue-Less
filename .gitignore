@@ -33,6 +33,7 @@ nbproject/*
 *~
 
 # Eclipse files
+.project
 .metadata
 .classpath
 .loadpath
