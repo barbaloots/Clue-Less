@@ -24,4 +24,24 @@ hs_err_pid*
 
 build.xml
 manifest.mf
-nbproject
+nbproject/*
+
+# Mac
+.DS_STORE
+
+# Emacs backup files
+*~
+
+# Eclipse files
+.metadata
+.classpath
+.loadpath
+.recommenders
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
