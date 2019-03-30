@@ -1,4 +1,4 @@
-package clueless;
+package clueless.gamelogic;
 
 /**
  * Store all weapon types in an enum (just makes it easier

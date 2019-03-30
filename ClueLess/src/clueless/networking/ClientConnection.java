@@ -1,4 +1,4 @@
-package clueless;
+package clueless.networking;
 
 import java.io.BufferedReader;
 import java.io.IOException;

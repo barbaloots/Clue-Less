@@ -1,4 +1,4 @@
-package clueless;
+package clueless.gamelogic;
 
 /**
  * Encapsulate location coordinates. This class will likely end 

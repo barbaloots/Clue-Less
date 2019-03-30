@@ -1,4 +1,4 @@
-package clueless;
+package clueless.gamelogic;
 
 /**
  *
