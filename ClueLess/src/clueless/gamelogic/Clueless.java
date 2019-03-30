@@ -2,14 +2,12 @@ package clueless.gamelogic;
 
 /**
  *
- * 
  */
-public class ClueLess {
-
+public class Clueless {
    /**
     * @param args the command line arguments
     */
    public static void main(String[] args) {
-      // TODO code application logic here
+	   
    }   
 }
