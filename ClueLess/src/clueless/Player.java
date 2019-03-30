@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clueless;
 
 /**
- *
- * @author drobi
+ * The player class handles all functionality related to a player.
+ * 
  */
 public class Player {
    
