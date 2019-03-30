@@ -7,7 +7,7 @@ package clueless;
 
 /**
  *
- * @author drobi
+ * 
  */
 public class Suggestion {
    
