@@ -4,28 +4,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
- * Purely to demonstrate basic communication
- * between client(s) and the server. We'll still need a way 
- * to associate this with each client. Probably want to object-orient
- * it a little so the reader and writer are instance variables (after
- * skeletal increment).
- * 
- * TODO: Modify this class so it can be used as an instance variable of each client
+ * Run by the client to establish a connection to the server at the specified
+ * host and port number.
  * 
  * @author matthewsobocinski
  */
 public class ClientConnection {
 	private static final int PORT_NUMBER = 8888;
 	private static final String HOST_NAME = "127.0.0.1";
-	
+
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		Socket socket = null;
 		PrintWriter clientOut = null;
 		BufferedReader serverIn = null;
-		
+
 		try {
 			// Bind to the host and port
 			socket = new Socket(HOST_NAME, PORT_NUMBER);
@@ -34,12 +32,17 @@ public class ClientConnection {
 			// Instantate a reader for reading messages from the server
 			serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			// Send a test message to the server
-			clientOut.println("Hello from the client");
-			// Accept a message from the server
-			System.out.println("Server says: " + serverIn.readLine());
-		} catch (Exception e) {
-			System.err.println("Client error: " + e.toString());
+			Scanner input = new Scanner(System.in);
+			System.out.println("Type a message to send to the server:");
+			// Continually accept input
+			while (input.hasNext()) {
+				// Send the client input to the server
+				clientOut.println(input.nextLine());
+				// Accept a message from the server
+				System.out.println("Server says: " + serverIn.readLine());
+			}
+		} catch (ConnectException e) {
+			System.out.println("Sorry, the game is already full.");
 		}
 	}
 }

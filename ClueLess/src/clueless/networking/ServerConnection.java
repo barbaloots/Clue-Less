@@ -1,11 +1,10 @@
 package clueless.networking;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import clueless.gamelogic.TurnEnforcement;
 
 /**
  * Accept and handle connections from clients. This will be fleshed out
@@ -14,37 +13,35 @@ import java.net.Socket;
  * send and receive messages. This class must be running before any ClientConnections
  * can connect to it.
  * 
- * TODO: Modify so new threads are spun off to handle each individual client received.
- * TODO: Add logic to enforce 3 <= num clients <= 6.
- * 
  * @author matthewsobocinski
  */
 public class ServerConnection {
 	// Port number at which communication will be made
 	private static final int PORT_NUMBER = 8888;
+	// Note: this is just a placeholder for the skeletal increment
+	private static final int NUM_PLAYERS = 3;
 
 	public static void main(String[] args) throws IOException {
-		String clientInput = null;
-		Socket clientSocket = null;
-		PrintWriter serverOut = null;
+		int playerCount = 0;
 		ServerSocket serverSocket = null;
-		BufferedReader clientIn = null;
 		
 		try {
 			// Bind to the port number
 			serverSocket = new ServerSocket(PORT_NUMBER);
-			// Accept a client connection
-			clientSocket = serverSocket.accept();     
-			// Instantiate a writer for writing back to the client
-			serverOut = new PrintWriter(clientSocket.getOutputStream(), true);
-			// Instantiate a reader for reading messages from the client
-			clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-			// Parse and print input from the client
-			while ((clientInput = clientIn.readLine()) != null) {
-				System.out.println("Client says: " + clientInput);
-				serverOut.println("Hello from the server");
+			System.out.println("Server running...");
+			System.out.println("Waiting for " + NUM_PLAYERS + " players to connect...");
+			
+			// Accept connections until the specified number of players have joined
+			while(playerCount < NUM_PLAYERS) {
+				// Accept a client connection
+				Socket clientSocket = serverSocket.accept();
+				// Instantiate a connection handler to interact with this client using a separate thread
+				Runnable connectionHandler = new ConnectionHandler(clientSocket, ++playerCount);
+				new Thread(connectionHandler).start();
 			}
+			
+			System.out.println(NUM_PLAYERS + " have joined the game. Initializing game.");
+			TurnEnforcement.initializePlayerArray(NUM_PLAYERS);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		} finally {
