@@ -15,7 +15,7 @@ public class ServerConnection {
 	// Port number at which communication will be made
 	private static final int PORT_NUMBER = 8888;
 	// Note: this is just a placeholder for the skeletal increment
-	private static final int NUM_PLAYERS = 2;
+	private static final int NUM_PLAYERS = 3;
 
 	public static void main(String[] args) throws IOException {
 		int playerCount = 0;
