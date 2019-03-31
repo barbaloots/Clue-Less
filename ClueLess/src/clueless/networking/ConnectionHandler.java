@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import clueless.gamelogic.TurnEnforcement;
+
 /**
  * Handle each connection made to the server with a different thread.
  * 
@@ -30,18 +32,18 @@ public class ConnectionHandler implements Runnable {
 		this.clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		// Save the player number
 		this.playerNumber = playerCount;
-		System.out.println("Creating ClientConnectionHandler for " + playerCount);
+		System.out.println("Creating ClientConnectionHandler for Player " + playerCount + "...");
 	}
 
 	@Override
 	public void run() {
-		System.out.println("Starting thread for a new player!");
+		System.out.println("Starting new thread for Player " + playerNumber + "...");
+		serverOut.println("Welcome, Player " + playerNumber + "!");
 		String clientInput = null;
 		
 		// Listen indefinitely for input from clients
 		while(true) {
 			try {
-				System.out.println("Listening for input from client " + playerNumber + "...");
 				// Parse input from the client
 				clientInput = clientIn.readLine();
 				
@@ -51,8 +53,25 @@ public class ConnectionHandler implements Runnable {
 					break;
 				}
 				
-				System.out.println(playerNumber + " says " + clientInput);
-				serverOut.println("Got your message!");
+				// Make sure the game has started before accepting input
+				if(!TurnEnforcement.gameHasStarted()) {
+					serverOut.println("The game has not started yet. Please wait.");
+					continue;
+				}
+				
+				// Get the number of the player whose turn it currently is
+				int currentPlayer = TurnEnforcement.getCurrentPlayer();
+				// If it isn't this player's turn, send a message telling them to wait their turn
+				if(currentPlayer != playerNumber) {
+					serverOut.println("It's currently Player " + currentPlayer + "'s turn. Please wait.");
+					continue;
+				}
+				
+				// Inform the TurnEnforcement module that a turn has been taken
+				TurnEnforcement.turnMade();
+				
+				System.out.println("Received a move from Player " + playerNumber + "!");
+				serverOut.println("Player " + playerNumber + ", your move has been received.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

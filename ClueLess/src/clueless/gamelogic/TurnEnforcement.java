@@ -15,6 +15,7 @@ package clueless.gamelogic;
  * @author matthewsobocinski
  */
 public class TurnEnforcement {
+	private static boolean gameHasStarted = false;
 	private static int numberOfPlayers = 0;
 	private static int currentTurn = 0;
 	private static final int ELIMINATED_FLAG = -1;
@@ -31,6 +32,7 @@ public class TurnEnforcement {
 		for(int i = 0; i < numPlayers; i++) {
 			playerArr[i] = i+1;
 		}
+		gameHasStarted = true;
 	}
 	
 	/**
@@ -69,5 +71,14 @@ public class TurnEnforcement {
 	public static synchronized void eliminatePlayer(int playerNum) {
 		System.out.println("Player " + playerNum + " has been eliminated.");
 		playerArr[playerNum-1] = ELIMINATED_FLAG;
+	}
+	
+	/**
+	 * Used to ensure moves aren't attempted until the game has been initialized.
+	 * 
+	 * @return whether the game has been started
+	 */
+	public static synchronized boolean gameHasStarted() {
+		return gameHasStarted;
 	}
 }

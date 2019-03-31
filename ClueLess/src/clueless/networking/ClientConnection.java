@@ -31,18 +31,20 @@ public class ClientConnection {
 			clientOut = new PrintWriter(socket.getOutputStream(), true);
 			// Instantate a reader for reading messages from the server
 			serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			
+			// Print the acknowledgement from the server
+			System.out.println(serverIn.readLine());
 
 			Scanner input = new Scanner(System.in);
-			System.out.println("Type a message to send to the server:");
 			// Continually accept input
-			while (input.hasNext()) {
+			while (input.hasNext()) {	
 				// Send the client input to the server
 				clientOut.println(input.nextLine());
 				// Accept a message from the server
-				System.out.println("Server says: " + serverIn.readLine());
+				System.out.println(serverIn.readLine());
 			}
 		} catch (ConnectException e) {
-			System.out.println("Sorry, the game is already full.");
+			System.out.println("The game is already full and cannot be joined.");
 		}
 	}
 }

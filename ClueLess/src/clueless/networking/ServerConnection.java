@@ -7,11 +7,7 @@ import java.net.Socket;
 import clueless.gamelogic.TurnEnforcement;
 
 /**
- * Accept and handle connections from clients. This will be fleshed out
- * in later iterations, but for the skeletal increment, it's 
- * probably sufficient to just show that we can accept connections and
- * send and receive messages. This class must be running before any ClientConnections
- * can connect to it.
+ * Start the server and accept connections from clients.
  * 
  * @author matthewsobocinski
  */
@@ -19,7 +15,7 @@ public class ServerConnection {
 	// Port number at which communication will be made
 	private static final int PORT_NUMBER = 8888;
 	// Note: this is just a placeholder for the skeletal increment
-	private static final int NUM_PLAYERS = 3;
+	private static final int NUM_PLAYERS = 2;
 
 	public static void main(String[] args) throws IOException {
 		int playerCount = 0;
