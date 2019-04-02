@@ -15,4 +15,24 @@ public class Movement
     private String direction;
     private int spacesToMove;
     private boolean validMove;
+    
+    /**
+     * Method for players to move location
+     * 
+     * @param player
+     * 		the player whose turn it is
+     */
+    public void move(Player player) {
+    	CharacterName character = player.getCharacter();
+    }
+    
+    /**
+     * Determine if player's opted for move is valid
+     * 
+     * @return whether the move is valid
+     */
+    private boolean validateMove() {
+    	//validate move code
+    	return validMove;
+    }
 }

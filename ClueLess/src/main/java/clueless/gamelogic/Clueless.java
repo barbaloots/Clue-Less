@@ -1,18 +1,19 @@
 package clueless.gamelogic;
 
 /**
- *
+ * Main class for the ClueLess game
  */
 public class Clueless {
-
-   /**
+	
+	/**
     * @param args the command line arguments
     */
    public static void main(String[] args) {
-      // Eventual invocation will be different
-      generateAllCards();
+	   // Eventual invocation will be different
+	   generateAllCards();
+	   playerStartLocations();
    }
-
+   
    /**
     * Confirming design used to represent cards.
     */
@@ -39,5 +40,12 @@ public class Clueless {
       System.out.println("\nIdentify location of item on game board using x,y coordinates:");
       Location loc = new Location(5, 8);
       System.out.println("Item located at X coordinate " + loc.getX() + ", y coordinate " + loc.getY());
+   }
+   
+   /**
+    * At the start of the game, set each of the player's characters to their respective locations
+    */
+   private static void playerStartLocations() {
+	   
    }
 }

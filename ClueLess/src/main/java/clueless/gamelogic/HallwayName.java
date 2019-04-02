@@ -2,6 +2,7 @@ package clueless.gamelogic;
 
 /**
  * Each hallway is named by the rooms it connects separated by an underscore.
+ * 
  * @author drobi
  */
 public enum HallwayName {
@@ -20,10 +21,21 @@ public enum HallwayName {
 	
 	String hallwayName;
   
+	/**
+	 * Constructor that sets the hallway name
+	 * 
+	 * @param hallwayName
+	 * 		the hallway name to set
+	 */
     private HallwayName(String hallwayName) {
         this.hallwayName = hallwayName;
     }
 
+    /**
+     * Get the hallwayName
+     * 
+     * @return the hallwayName
+     */
     public String getHallwayName() {
         return hallwayName;
     } 

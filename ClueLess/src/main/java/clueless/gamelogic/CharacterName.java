@@ -15,10 +15,21 @@ public enum CharacterName {
 	
 	private String characterName;
 
+	/**
+	 * Constructor that sets the characterName
+	 * 
+	 * @param characterName
+	 * 		the name of the character
+	 */
     private CharacterName(String characterName) {
         this.characterName = characterName;
     }
 
+    /**
+     * Get the characterName
+     * 
+     * @return the characterName
+     */
     public String getCharacterName() {
         return characterName;
     }
