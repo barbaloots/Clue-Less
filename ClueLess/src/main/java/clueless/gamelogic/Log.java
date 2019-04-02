@@ -1,125 +1,100 @@
 package clueless.gamelogic;
 
-import java.util.ArrayList;
-
 /**
  * This class creates the logs required for the game as well as
  * the methods for how the logs are updated as the game progresses.
+
+
+
+ logging will be done on a per class basis, this is so that we do not have to pass a reference of the logging class throughout the program
+ log4j seems to be able to have multiple handles on a single log file
+ each log line is referenced by class which is based off the instantiation of the logging class itself (when I call class.getClass())
+ I am passing in a general reference to the type of class that the logger is being delcared in
+
+ If a log for a specific class wants to be utilized then, in the class declaration you declare an instance of the Log class e.g. Log logger = null;
+ Then the log class will be instantiated in the constructor e.g. logger = Log(this);
+ this references the type of class that should be passed in and outputted into the log file
+
+ some specific methods have been created in order to aid in the logging syntax we are looking for and as to not repeat the lines
+ otherwise, the specific reference to the logger can be passed and utilized in the host class
+
+ the controls "private static final" on the declaration of the logger make sure that each instance is indivudal and does not conflict with other logger instances created
  */
+
+import java.util.ArrayList;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 public class Log 
 {
-   private ArrayList charAndWeapMovement;
-   private ArrayList suggestions;
-   private ArrayList accusations;
+
+   private static final Logger logger = null;
+
+   //private ArrayList charAndWeapMovement;
+   //private ArrayList suggestions;
+   //private ArrayList accusations;
    
-   /**
-    * Constructor
-    */
-   public Log()
+   public Log(Class class)
    {
-       charAndWeapMovement = new ArrayList();
-       suggestions = new ArrayList();
-       accusations = new ArrayList();
+      logger = Logger.getLogger(class.getClass()) //can I do this?
+
+      PropertyConfiguratior.configure("log4j.properties")
+
+      //charAndWeapMovement = new ArrayList();
+      //suggestions = new ArrayList();
+      //accusations = new ArrayList();
    }
    
-   /**
-    * Update movement/location of the characters and weapons on the board
-    * 
-    * @param character
-    * 		the character to be moved
-    * @param weapon
-    * 		the weapon to be moved
-    * @param previousCharRoom
-    * 		the current/previous location (room) of the character
-    * @param previousWeaponRoom
-    * 		the current/previous location (room) of the weapon
-    * @param destinationRoom
-    * 		the new destination (room) of the character and weapon
-    */
-   public void updateCharAndWeapMovement(CharacterName character, WeaponType weapon, RoomName previousCharRoom, 
-   RoomName previousWeaponRoom, RoomName destinationRoom)
+   public void logCharAndWeapMovement(CharacterName character, WeaponType weapon, RoomName previousCharRoom, RoomName previousWeaponRoom, RoomName destinationRoom)
    {
-       charAndWeapMovement.add(character + " was moved from " + previousCharRoom + " to " + destinationRoom + "."
-       + "\n" + weapon + " was moved from " + previousWeaponRoom + " to " + destinationRoom + ".");
+      logger.info(character.getCharacterName() + " was moved from " + previousCharRoom.getRoomName() + " to " + destinationRoom.getRoomName() + "." + "\n" + weapon.getWeapon() + " was moved from " + previousWeaponRoom.getRoomName() + " to " + destinationRooml.getRoomName()+ "."))
+       //charAndWeapMovement.add(character + " was moved from " + previousCharRoom + " to " + destinationRoom + "." + "\n" + weapon + " was moved from " + previousWeaponRoom + " to " + destinationRoom + ".");
    }
    
-   /**
-    * After a player makes a suggestion or accusation, add to the log
-    * 
-    * @param character
-    * 		the character being suggested
-    * @param weapon
-    * 		the weapon being suggested
-    * @param destinationRoom
-    * 		the destination being suggested
-    */
-   public void updateSuggestAccuse(Boolean accuse, CharacterName character, WeaponType weapon, RoomName destinationRoom)
+   public void logSuggestions(CharacterName character, WeaponType weapon, RoomName destinationRoom)
    {
-	   String claim = " made: It was " + character + " with the " + weapon + " in the " +
-		       destinationRoom + ".";
-	   if(accuse) {
-		   accusations.add("Accusation" + claim);
-	   }
-	   else {
-		   suggestions.add("Suggestion" + claim);
-	   }
+      logger.info("Suggestion made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + destinationRoom.getRoomName() + ".")
+       //suggestions.add("Suggestion made: It was " + character + " with the " + weapon + " in the " + destinationRoom + ".");
    }
    
-   /**
-    * Provide logs for a specific turn
-    * 
-    * @param chosenLog
-    * 		the log to be displayed
-    * @param turnNumber
-    * 		the turn whose log is to be displayed
-    */
+   public void logAccusations(CharacterName character, WeaponType weapon, RoomName room)
+   {
+      logger.info("Accusation made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + room.getRoomName() + ".")
+       //accusations.add("Accusation made: It was " + character + " with the " + weapon + " in the " + room + ".");
+   }
+   /*
    public void checkLogByTurn(ArrayList chosenLog, int turnNumber)
    {
        System.out.println(chosenLog.get(turnNumber - 1));   
-   }
+   }*/
    
-   /**
-    * Provide entire logs
-    * 
-    * @param chosenLog
-    * 		the log to be displayed
-    */
-   public void printAllFromLog(ArrayList<String> chosenLog)
+   //Logs will be wrriten to file for post processing debug
+   /*public void printAllFromLog(ArrayList chosenLog)
    {
        for(String entry : chosenLog)
        {
            System.out.println(entry);   
        }
-   }
+   }*/
    
-   /**
-    * Get the charAndWeapMovement
-    * 
-    * @return the charAndWeapMovement
-    */
-   public ArrayList getCharAndWeapLog()
+    public Logger getLogger()
+    {
+      return logger
+    }
+
+   /*public ArrayList getCharAndWeapLog()
    {
        return charAndWeapMovement;   
    }
    
-   /**
-    * Get the suggestions
-    * 
-    * @return the suggestions
-    */
    public ArrayList getSuggestionLog()
    {
        return suggestions;
    }
    
-   /**
-    * Get the accusations
-    * 
-    * @return the accusations
-    */
    public ArrayList getAccusationLog()
    {
       return accusations;
-   }
+   }*/
    
 }
