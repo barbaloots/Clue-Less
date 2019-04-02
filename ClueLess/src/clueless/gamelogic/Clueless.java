@@ -8,7 +8,11 @@ public class Clueless {
    /**
     * @param args the command line arguments
     */
+
+   Log log = null;
+
    public static void main(String[] args) {
+    log = new Log(this);
       // Eventual invocation will be different
       generateAllCards();
    }
