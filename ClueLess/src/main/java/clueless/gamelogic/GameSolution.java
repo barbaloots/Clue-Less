@@ -8,6 +8,9 @@ import java.util.Random;
  * @author matthewsobocinski
  */
 public class GameSolution extends CluelessTriple {
+	/**
+	 * Constructor
+	 */
 	public GameSolution() {
 		super(getRandomWeaponType(), getRandomRoomName(), getRandomCharacterName());
 	}
@@ -25,8 +28,9 @@ public class GameSolution extends CluelessTriple {
 	}
 
 	/**
+	 * Select a random character name
 	 * 
-	 * @return
+	 * @return the random character name
 	 */
 	private static CharacterName getRandomCharacterName() {
 		// Randomly select a WeaponType
@@ -35,8 +39,9 @@ public class GameSolution extends CluelessTriple {
 	}
 
 	/**
+	 * Select a random weapon type
 	 * 
-	 * @return
+	 * @return the random weapon type
 	 */
 	private static WeaponType getRandomWeaponType() {
 		// Randomly select a WeaponType
@@ -45,8 +50,9 @@ public class GameSolution extends CluelessTriple {
 	}
 
 	/**
+	 * Select a random room name
 	 * 
-	 * @return
+	 * @return the random room name
 	 */
 	private static RoomName getRandomRoomName() {
 		// Randomly select a RoomName

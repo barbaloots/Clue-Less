@@ -1,6 +1,7 @@
 package clueless.gamelogic;
 
 /**
+ * Enum class for the card types
  * 
  * @author matthewsobocinski
  */

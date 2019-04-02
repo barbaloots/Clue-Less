@@ -1,15 +1,17 @@
 package clueless.gamelogic;
 
 /**
- *
+ * Main class for the ClueLess game
  */
 public class Clueless {
-   /**
+	
+	/**
     * @param args the command line arguments
     */
    public static void main(String[] args) {
 	   // Eventual invocation will be different
 	   generateAllCards();
+	   playerStartLocations();
    }
    
    /**
@@ -30,5 +32,12 @@ public class Clueless {
 		   WeaponCard card = new WeaponCard(weapon.name());
 		   System.out.println(card.toString());
 	   }
+   }
+   
+   /**
+    * At the start of the game, set each of the player's characters to their respective locations
+    */
+   private static void playerStartLocations() {
+	   
    }
 }

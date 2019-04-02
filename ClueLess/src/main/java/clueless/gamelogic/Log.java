@@ -1,18 +1,20 @@
 package clueless.gamelogic;
 
+import java.util.ArrayList;
+
 /**
  * This class creates the logs required for the game as well as
  * the methods for how the logs are updated as the game progresses.
  */
-
-import java.util.ArrayList;
-
 public class Log 
 {
    private ArrayList charAndWeapMovement;
    private ArrayList suggestions;
    private ArrayList accusations;
    
+   /**
+    * Constructor
+    */
    public Log()
    {
        charAndWeapMovement = new ArrayList();
@@ -20,6 +22,20 @@ public class Log
        accusations = new ArrayList();
    }
    
+   /**
+    * Update movement/location of the characters and weapons on the board
+    * 
+    * @param character
+    * 		the character to be moved
+    * @param weapon
+    * 		the weapon to be moved
+    * @param previousCharRoom
+    * 		the current/previous location (room) of the character
+    * @param previousWeaponRoom
+    * 		the current/previous location (room) of the weapon
+    * @param destinationRoom
+    * 		the new destination (room) of the character and weapon
+    */
    public void updateCharAndWeapMovement(CharacterName character, WeaponType weapon, RoomName previousCharRoom, 
    RoomName previousWeaponRoom, RoomName destinationRoom)
    {
@@ -27,25 +43,48 @@ public class Log
        + "\n" + weapon + " was moved from " + previousWeaponRoom + " to " + destinationRoom + ".");
    }
    
-   public void updateSuggestions(CharacterName character, WeaponType weapon, RoomName destinationRoom)
+   /**
+    * After a player makes a suggestion or accusation, add to the log
+    * 
+    * @param character
+    * 		the character being suggested
+    * @param weapon
+    * 		the weapon being suggested
+    * @param destinationRoom
+    * 		the destination being suggested
+    */
+   public void updateSuggestAccuse(Boolean accuse, CharacterName character, WeaponType weapon, RoomName destinationRoom)
    {
-       suggestions.add("Suggestion made: It was " + character + " with the " + weapon + " in the " +
-       destinationRoom + ".");
+	   String claim = " made: It was " + character + " with the " + weapon + " in the " +
+		       destinationRoom + ".";
+	   if(accuse) {
+		   accusations.add("Accusation" + claim);
+	   }
+	   else {
+		   suggestions.add("Suggestion" + claim);
+	   }
    }
    
-   public void updateAccusations(CharacterName character, WeaponType weapon, RoomName room)
-   {
-       accusations.add("Accusation made: It was " + character + " with the " + weapon + " in the " +
-       room + ".");
-   }
-   
+   /**
+    * Provide logs for a specific turn
+    * 
+    * @param chosenLog
+    * 		the log to be displayed
+    * @param turnNumber
+    * 		the turn whose log is to be displayed
+    */
    public void checkLogByTurn(ArrayList chosenLog, int turnNumber)
    {
        System.out.println(chosenLog.get(turnNumber - 1));   
    }
    
-   
-   public void printAllFromLog(ArrayList chosenLog)
+   /**
+    * Provide entire logs
+    * 
+    * @param chosenLog
+    * 		the log to be displayed
+    */
+   public void printAllFromLog(ArrayList<String> chosenLog)
    {
        for(String entry : chosenLog)
        {
@@ -53,16 +92,31 @@ public class Log
        }
    }
    
+   /**
+    * Get the charAndWeapMovement
+    * 
+    * @return the charAndWeapMovement
+    */
    public ArrayList getCharAndWeapLog()
    {
        return charAndWeapMovement;   
    }
    
+   /**
+    * Get the suggestions
+    * 
+    * @return the suggestions
+    */
    public ArrayList getSuggestionLog()
    {
        return suggestions;
    }
    
+   /**
+    * Get the accusations
+    * 
+    * @return the accusations
+    */
    public ArrayList getAccusationLog()
    {
       return accusations;

@@ -1,6 +1,7 @@
 package clueless.gamelogic;
 
 /**
+ * Utility class for making character accusations and/or suggestions
  * 
  * @author matthewsobocinski
  */
@@ -10,14 +11,14 @@ public class CharacterUtils {
    private CharacterName characterName;
    
    /**
-    * 
+    * Make an accusation
     */
    public void makeAccusation() {
 	   
    }
    
    /**
-    * 
+    * Make a suggestion
     */
    public void makeSuggestion() {
 	   

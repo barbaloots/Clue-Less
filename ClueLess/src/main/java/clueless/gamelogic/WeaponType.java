@@ -17,10 +17,21 @@ public enum WeaponType {
 	
 	private String weapon;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param weapon
+	 * 		the weapon to set
+	 */
     private WeaponType(String weapon) {
         this.weapon = weapon;
     }
 
+    /**
+     * Get the weapon
+     * 
+     * @return the weapon
+     */
     public String getWeapon() {
         return weapon;
     }

@@ -17,11 +17,23 @@ public enum RoomName {
 	KITCHEN("KITCHEN");
 	
 	String roomName;
-
+	Location location;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param roomName
+	 * 		the roomName to set
+	 */
     private RoomName(String roomName) {
         this.roomName = roomName;
     }
 
+    /**
+     * Get the roomName
+     * 
+     * @return the roomName
+     */
     public String getRoomName() {
         return roomName;
     }

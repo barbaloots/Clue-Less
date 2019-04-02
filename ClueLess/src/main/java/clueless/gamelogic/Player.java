@@ -5,5 +5,23 @@ package clueless.gamelogic;
  * 
  */
 public class Player {
-   
+	
+	private CharacterName character;
+	
+	/**
+	 * Constructor - adds new player to the game
+	 */
+	public Player(CharacterName character) {
+		Notebook notebook = new Notebook();
+		this.character = character;
+	}
+	
+	/**
+	 * Get the character
+	 * 
+	 * @return the character
+	 */
+	public CharacterName getCharacter() {
+		return character;
+	}
 }
