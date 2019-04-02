@@ -32,6 +32,7 @@ public class Movement
      * @return whether the move is valid
      */
     private boolean validateMove() {
+    	//validate move code
     	return validMove;
     }
 }
