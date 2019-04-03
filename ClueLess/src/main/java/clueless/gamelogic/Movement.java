@@ -8,31 +8,48 @@ package clueless.gamelogic;
  * are also moved by means of suggestion, and this class enables
  * that they move properly.
  */
-public class Movement 
-{
-    private Location turnPlayerCurrentLocation;
+public class Movement {
+	private int spacesToMove;
+	private String direction;
+    private Location currentLocation;
     private Location destinationLocation;
-    private String direction;
-    private int spacesToMove;
-    private boolean validMove;
     
-    /**
-     * Method for players to move location
-     * 
-     * @param player
-     * 		the player whose turn it is
-     */
-    public void move(Player player) {
-    	CharacterName character = player.getCharacter();
+    public Movement(int spacesToMove, String direction, Location currentLocation, Location destinationLocation) {
+    	this.spacesToMove = spacesToMove;
+    	this.direction = direction;
+    	this.currentLocation = currentLocation;
+    	this.destinationLocation = destinationLocation;
     }
-    
-    /**
-     * Determine if player's opted for move is valid
-     * 
-     * @return whether the move is valid
-     */
-    private boolean validateMove() {
-    	//validate move code
-    	return validMove;
-    }
+
+	public int getSpacesToMove() {
+		return spacesToMove;
+	}
+
+	public String getDirection() {
+		return direction;
+	}
+
+	public Location getCurrentLocation() {
+		return currentLocation;
+	}
+
+	public Location getDestinationLocation() {
+		return destinationLocation;
+	}
+
+	public void setSpacesToMove(int spacesToMove) {
+		this.spacesToMove = spacesToMove;
+	}
+
+	public void setDirection(String direction) {
+		this.direction = direction;
+	}
+
+	public void setCurrentLocation(Location currentLocation) {
+		this.currentLocation = currentLocation;
+	}
+
+	public void setDestinationLocation(Location destinationLocation) {
+		this.destinationLocation = destinationLocation;
+	}
 }

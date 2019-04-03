@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import clueless.gamelogic.Game;
 import clueless.gamelogic.TurnEnforcement;
 
 /**
@@ -27,12 +28,15 @@ public class ServerConnection {
 			System.out.println("Server running...");
 			System.out.println("Waiting for " + NUM_PLAYERS + " players to connect...");
 			
+			// Create a new game for all players to join
+			Game game = new Game();
+			
 			// Accept connections until the specified number of players have joined
 			while(playerCount < NUM_PLAYERS) {
 				// Accept a client connection
 				Socket clientSocket = serverSocket.accept();
 				// Instantiate a connection handler to interact with this client using a separate thread
-				Runnable connectionHandler = new ConnectionHandler(clientSocket, ++playerCount);
+				Runnable connectionHandler = new ConnectionHandler(clientSocket, ++playerCount, game);
 				new Thread(connectionHandler).start();
 			}
 			

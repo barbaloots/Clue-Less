@@ -1,7 +1,5 @@
 package clueless.gamelogic;
 
-import java.util.ArrayList;
-
 /**
  * Encapsulate location coordinates. This class will likely end 
  * up with many more fields.
@@ -25,7 +23,7 @@ public class Location {
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -37,7 +35,7 @@ public class Location {
 	 * 		the y-coordinate on the board
 	 */
 	public Location(RoomName room, int x, int y) {
-		this.room = room;
+		this.setRoom(room);
 		this.x = x;
 		this.y = y;
 	}
@@ -79,4 +77,22 @@ public class Location {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	/**
+	 * Set the room name.
+	 * 
+	 * @param room the RoomName to set
+	 */
+	public void setRoom(RoomName room) {
+		this.room = room;
+	}
+
+	/**
+	 * Get the room name.
+	 * 
+	 * @return
+	 */
+	public RoomName getRoom() {
+		return room;
+	}	
 }

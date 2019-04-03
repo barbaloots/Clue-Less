@@ -21,47 +21,46 @@ package clueless.gamelogic;
  the controls "private static final" on the declaration of the logger make sure that each instance is indivudal and does not conflict with other logger instances created
  */
 
-import java.util.ArrayList;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-
-public class Log 
-{
-
-   private static final Logger logger = null;
+//import java.util.ArrayList;
+//import org.apache.log4j.BasicConfigurator;
+//import org.apache.log4j.Logger;
+//
+//public class Log 
+//{
+//
+//   private static final Logger logger = null;
 
    //private ArrayList charAndWeapMovement;
    //private ArrayList suggestions;
    //private ArrayList accusations;
    
-   public Log(Class class)
-   {
-      logger = Logger.getLogger(class.getClass()) //can I do this?
-
-      PropertyConfiguratior.configure("log4j.properties")
+//   public Log(Class class) {
+//      logger = Logger.getLogger(class.getClass()) //can I do this?
+//
+//      PropertyConfiguratior.configure("log4j.properties")
 
       //charAndWeapMovement = new ArrayList();
       //suggestions = new ArrayList();
       //accusations = new ArrayList();
-   }
+//   }
    
-   public void logCharAndWeapMovement(CharacterName character, WeaponType weapon, RoomName previousCharRoom, RoomName previousWeaponRoom, RoomName destinationRoom)
-   {
-      logger.info(character.getCharacterName() + " was moved from " + previousCharRoom.getRoomName() + " to " + destinationRoom.getRoomName() + "." + "\n" + weapon.getWeapon() + " was moved from " + previousWeaponRoom.getRoomName() + " to " + destinationRooml.getRoomName()+ "."))
-       //charAndWeapMovement.add(character + " was moved from " + previousCharRoom + " to " + destinationRoom + "." + "\n" + weapon + " was moved from " + previousWeaponRoom + " to " + destinationRoom + ".");
-   }
+//   public void logCharAndWeapMovement(CharacterName character, WeaponType weapon, RoomName previousCharRoom, RoomName previousWeaponRoom, RoomName destinationRoom)
+//   {
+//      logger.info(character.getCharacterName() + " was moved from " + previousCharRoom.getRoomName() + " to " + destinationRoom.getRoomName() + "." + "\n" + weapon.getWeapon() + " was moved from " + previousWeaponRoom.getRoomName() + " to " + destinationRooml.getRoomName()+ "."))
+//       //charAndWeapMovement.add(character + " was moved from " + previousCharRoom + " to " + destinationRoom + "." + "\n" + weapon + " was moved from " + previousWeaponRoom + " to " + destinationRoom + ".");
+//   }
    
-   public void logSuggestions(CharacterName character, WeaponType weapon, RoomName destinationRoom)
-   {
-      logger.info("Suggestion made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + destinationRoom.getRoomName() + ".")
-       //suggestions.add("Suggestion made: It was " + character + " with the " + weapon + " in the " + destinationRoom + ".");
-   }
+//   public void logSuggestions(CharacterName character, WeaponType weapon, RoomName destinationRoom)
+//   {
+//      logger.info("Suggestion made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + destinationRoom.getRoomName() + ".")
+//       //suggestions.add("Suggestion made: It was " + character + " with the " + weapon + " in the " + destinationRoom + ".");
+//   }
    
-   public void logAccusations(CharacterName character, WeaponType weapon, RoomName room)
-   {
-      logger.info("Accusation made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + room.getRoomName() + ".")
-       //accusations.add("Accusation made: It was " + character + " with the " + weapon + " in the " + room + ".");
-   }
+//   public void logAccusations(CharacterName character, WeaponType weapon, RoomName room)
+//   {
+//      logger.info("Accusation made: It was " + character.getCharacterName() + " with the " + weapon.getWeapon() + " in the " + room.getRoomName() + ".")
+//       //accusations.add("Accusation made: It was " + character + " with the " + weapon + " in the " + room + ".");
+//   }
    /*
    public void checkLogByTurn(ArrayList chosenLog, int turnNumber)
    {
@@ -77,10 +76,10 @@ public class Log
        }
    }*/
    
-    public Logger getLogger()
-    {
-      return logger
-    }
+//    public Logger getLogger()
+//    {
+//      return logger
+//    }
 
    /*public ArrayList getCharAndWeapLog()
    {
@@ -97,4 +96,4 @@ public class Log
       return accusations;
    }*/
    
-}
+//}

@@ -21,7 +21,7 @@ public class DealCards {
 		CharacterName solutionChar = gameSolution.getCharacterName();
 		WeaponType solutionWeapon = gameSolution.getWeaponType();
 		RoomName solutionRoom = gameSolution.getRoomName();
-		
+
 		// deal the remaining cards out to the players
 	}
 }
