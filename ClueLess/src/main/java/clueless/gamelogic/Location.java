@@ -1,41 +1,21 @@
 package clueless.gamelogic;
 
 /**
- * Encapsulate location coordinates. This class will likely end 
- * up with many more fields.
+ * Encapsulate location coordinates.
  * 
  * @author matthewsobocinski
  */
 public class Location {
 	private int x;
 	private int y;
-	private RoomName room;
 
 	/**
-	 * Constructor
-	 * 
-	 * @param x
-	 * 		x-coordinate on the board
-	 * @param y
-	 * 		y-coordinate on the board
-	 */
-	public Location(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param room
-	 * 		the room to be located on the board
 	 * @param x
 	 * 		the x-coordinate on the board
 	 * @param y
 	 * 		the y-coordinate on the board
 	 */
-	public Location(RoomName room, int x, int y) {
-		this.setRoom(room);
+	public Location(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -78,21 +58,8 @@ public class Location {
 		this.y = y;
 	}
 
-	/**
-	 * Set the room name.
-	 * 
-	 * @param room the RoomName to set
-	 */
-	public void setRoom(RoomName room) {
-		this.room = room;
+	@Override
+	public String toString() {
+		return "Location (" + x + "," + y + ")";
 	}
-
-	/**
-	 * Get the room name.
-	 * 
-	 * @return
-	 */
-	public RoomName getRoom() {
-		return room;
-	}	
 }

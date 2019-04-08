@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 public class Player {
 	private boolean active;
-	private Weapon weapon;
+	private String abbreviation;
 	private Location location;
 	private Notebook notebook;
 	private CharacterName characterName;
@@ -18,11 +18,12 @@ public class Player {
 	 * 
 	 * @param character the name of the new Player to create.
 	 */
-	public Player(CharacterName character, Weapon weapon, CharacterName characterName) {
+	public Player(String abbreviation, CharacterName characterName, Location location) {
 		this.active = false;
+		this.abbreviation = abbreviation;
 		this.notebook = new Notebook();
 		this.characterName = characterName;
-		this.weapon = weapon;
+		this.location = location;
 		this.currentHand = new ArrayList<>();
 	}
 
@@ -71,9 +72,9 @@ public class Player {
 	public boolean isActive() {
 		return active;
 	}
-
-	public Weapon getWeapon() {
-		return weapon;
+	
+	public String getAbbreviation() {
+		return abbreviation;
 	}
 
 	public Location getLocation() {
@@ -95,11 +96,11 @@ public class Player {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-
-	public void setWeapon(Weapon weapon) {
-		this.weapon = weapon;
+	
+	public void setAbbreviation(String abbreviation) {
+		this.abbreviation = abbreviation;
 	}
-
+	
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -114,5 +115,11 @@ public class Player {
 
 	public void setCurrentHand(ArrayList<Card> currentHand) {
 		this.currentHand = currentHand;
+	}
+
+	@Override
+	public String toString() {
+		return "Player [active=" + active + ", abbreviation=" + abbreviation + ", location=" + location.toString()
+				+ ", characterName=" + characterName.getCharacterName() + "]";
 	}
 }
