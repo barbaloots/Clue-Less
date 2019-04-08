@@ -6,12 +6,12 @@ package clueless.gamelogic;
  * @author matthewsobocinski
  */
 public enum CharacterName {
-	PLUM("PLUM"),
-	PEACOCK("PEACOCK"),
-	GREEN("GREEN"),
-	WHITE("WHITE"),
-	SCARLET("SCARLET"),
-	MUSTARD("MUSTARD");
+	PLUM("Professor Plum"),
+	PEACOCK("Mrs. Peacock"),
+	GREEN("Mr. Green"),
+	WHITE("Mrs. White"),
+	SCARLET("Miss Scarlet"),
+	MUSTARD("Colonel Mustard");
 	
 	private String characterName;
 

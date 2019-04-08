@@ -1,9 +1,12 @@
 package clueless.gamelogic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 
 import clueless.gamelogic.locationenums.LocationEnum;
+import clueless.networking.ConnectionHandler;
 
 /**
  * Maintain informaton related to the current state of the game.
@@ -13,12 +16,14 @@ import clueless.gamelogic.locationenums.LocationEnum;
  * @author matthewsobocinski
  */
 public class Game {
+	private static final Logger logger = Logger.getLogger(Game.class);
 	private boolean active;
 	private BoardLocationEntity[][] board;
 	private ArrayList<RoomCard> roomCards;
 	private ArrayList<CharacterCard> characterCards;
 	private ArrayList<WeaponCard> weaponCards;
-	private HashMap<CharacterName, Player> players;
+	private ArrayList<ConnectionHandler> connections;
+	private ArrayList<Player> players;
 	// Board height
 	private static final int BOARD_HEIGHT = 5;
 	// Board width
@@ -37,11 +42,20 @@ public class Game {
 		this.roomCards = new ArrayList<>();
 		this.characterCards = new ArrayList<>();
 		this.weaponCards = new ArrayList<>();
-		this.players = new HashMap<>();
+		this.connections = new ArrayList<>();
+		this.players = new ArrayList<>();
+		this.initLogger();
 		this.generateCards();
 		this.populateBoard();
 		this.createPlayers();
 		this.printBoard();
+	}
+
+	/**
+	 * Configure log4j.
+	 */
+	private void initLogger() {
+		DOMConfigurator.configure("log4jserver.xml");
 	}
 
 	/**
@@ -117,15 +131,15 @@ public class Game {
 				((Hallway) boardLocationEntity).setOccupied(true);
 			}
 			// Add the Player object to the HashMap of Players, using their CharacterName as a key
-			this.players.put(name, player);
-			System.out.println("Created player: " + player.toString());
+			this.players.add(player);
+			logger.info("Created player: " + player.toString());
 		}
 	}
 
 	/**
-	 * Print the board, as stored in the 5x5 2D array.
+	 * Pretty prints the board, which is a 5x5 2D array.
 	 * Although this method looks somewhat complex, the logic is necessary for
-	 * ensuring the board is legible when printed to the console for debugging.
+	 * ensuring the board is legible when printed to the console for early debugging.
 	 */
 	private void printBoard() {
 		System.out.println("\nCURRENT CLUELESS BOARD:");
@@ -186,7 +200,13 @@ public class Game {
 	 * @param move the Movement to validate
 	 * @return whether the move is valid
 	 */
-	public boolean validateMove(CharacterName character, Movement move) {
+	public boolean validateMove(Player player, Movement move) {
+		// Broadcast the move to each Player (assumes it was successful)
+		for(ConnectionHandler connection : connections) {
+			connection.sendMessage(player.getAbbreviation() + move.toString());
+		}
+		
+		// TODO: Need lots of logic here to determine if the move being attempted is valid
 		return true;
 	}
 
@@ -198,7 +218,7 @@ public class Game {
 		return board;
 	}
 
-	public HashMap<CharacterName, Player> getPlayers() {
+	public ArrayList<Player> getPlayers() {
 		return players;
 	}
 
@@ -209,8 +229,12 @@ public class Game {
 	public void setBoard(BoardLocationEntity[][] board) {
 		this.board = board;
 	}
+	
+	public void setConnections(ArrayList<ConnectionHandler> connections) {
+		this.connections = connections;
+	}
 
-	public void setPlayers(HashMap<CharacterName, Player> players) {
+	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
 	}
 }

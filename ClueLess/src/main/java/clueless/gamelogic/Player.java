@@ -7,6 +7,7 @@ import java.util.ArrayList;
  */
 public class Player {
 	private boolean active;
+	private int numMoves;
 	private String abbreviation;
 	private Location location;
 	private Notebook notebook;
@@ -20,6 +21,7 @@ public class Player {
 	 */
 	public Player(String abbreviation, CharacterName characterName, Location location) {
 		this.active = false;
+		this.numMoves = 0;
 		this.abbreviation = abbreviation;
 		this.notebook = new Notebook();
 		this.characterName = characterName;
@@ -31,7 +33,7 @@ public class Player {
 	 * Accept a move, which will then be validated with the game logic subsystem.
 	 * If the move was not valid, return false. Otherwise, return true.
 	 * 
-	 * @param move
+	 * @param move a Movement object specifying the move the player wishes to make
 	 * @return whether the move was successful
 	 */
 	private boolean move(Movement move) {
@@ -73,6 +75,10 @@ public class Player {
 		return active;
 	}
 	
+	public int getNumMoves() {
+		return numMoves;
+	}
+	
 	public String getAbbreviation() {
 		return abbreviation;
 	}
@@ -95,6 +101,10 @@ public class Player {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+	
+	public void setNumMoves(int numMoves) {
+		this.numMoves = numMoves;
 	}
 	
 	public void setAbbreviation(String abbreviation) {

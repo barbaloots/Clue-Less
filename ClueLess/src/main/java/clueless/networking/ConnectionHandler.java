@@ -6,16 +6,24 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
+
 import clueless.gamelogic.Game;
+import clueless.gamelogic.Location;
+import clueless.gamelogic.Movement;
+import clueless.gamelogic.Player;
 import clueless.gamelogic.TurnEnforcement;
 
 /**
- * Handle each connection made to the server with a different thread.
+ * A SERVER-SIDE class that handles each connection made to the server with a different thread.
  * 
  * @author matthewsobocinski
  */
 public class ConnectionHandler implements Runnable {
+	private static final Logger logger = Logger.getLogger(ConnectionHandler.class);
 	private int playerNumber;
+	private Player player;
 	private Game game;
 	private BufferedReader clientIn = null;
 	private PrintWriter serverOut = null;
@@ -25,25 +33,45 @@ public class ConnectionHandler implements Runnable {
 	 * 
 	 * @param clientSocket the socket by which communication is performed between client and server
 	 * @param playerCount the number of the player to join the game
+	 * @param player the Player object representing this user in the game
 	 * @param game the Game with which this ConnectionHandler is associated
 	 * @throws IOException
 	 */
-	public ConnectionHandler(Socket clientSocket, int playerCount, Game game) throws IOException {
+	public ConnectionHandler(Socket clientSocket, int playerCount, Player player, Game game) throws IOException {
 		// Instantiate a writer for writing back to the client
 		this.serverOut = new PrintWriter(clientSocket.getOutputStream(), true);
 		// Instantiate a reader for reading messages from the client
 		this.clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		// Save the player number
 		this.playerNumber = playerCount;
+		// Save the Player objects
+		this.player = player;
 		// Store the game 
 		this.game = game;
-		System.out.println("Creating ClientConnectionHandler for Player " + playerCount + "...");
+		this.initLogger();
+		logger.info("Creating ClientConnectionHandler for Player " + playerCount + "...");
+	}
+	
+	/**
+	 * Configure log4j.
+	 */
+	private void initLogger() {
+		DOMConfigurator.configure("log4jserver.xml");
+	}
+
+	/**
+	 * Send a message to the client.
+	 * 
+	 * @param message the message to send
+	 */
+	public void sendMessage(String message) {
+		serverOut.println(message);
 	}
 
 	@Override
 	public void run() {
-		System.out.println("Starting new thread for Player " + playerNumber + "...");
-		serverOut.println("Welcome, Player " + playerNumber + "!");
+		logger.info("Starting new thread for Player " + playerNumber + "...");
+		serverOut.println("Welcome, Player " + playerNumber + "! Your character is " + player.getCharacterName().getCharacterName() + ".");
 		String clientInput = null;
 
 		// Listen indefinitely for input from clients
@@ -72,16 +100,20 @@ public class ConnectionHandler implements Runnable {
 					continue;
 				}
 				
+				// DUMMY MOVE for the purposes of verifying broadcast messages
+				boolean moveSuccess = game.validateMove(player, new Movement(new Location(0,0), new Location(0,1)));
+				
 				// Inform the TurnEnforcement module that a turn has been taken
 				TurnEnforcement.turnMade();
 
-				System.out.println("Received a move from Player " + playerNumber + "!");
+				logger.info("Received a move from Player " + playerNumber + "!");
 				serverOut.println("Player " + playerNumber + ", your move has been received.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-
+		
+		TurnEnforcement.eliminatePlayer(playerNumber);
 		System.out.println("Player " + playerNumber + " has disconnected from the game.");
 	}
 }
