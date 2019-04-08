@@ -67,6 +67,43 @@ public class ClientConnection {
 			logger.error("Either the server is not running or the game is already full and cannot be joined.");
 		}
 	}
+	
+	/**
+	 * Process INPUT FROM THE SERVER in a separate thread other than that which
+	 * is used for sending this client's input to the server. This makes the 
+	 * system full-duplex and ensures broadcast messages can be received right
+	 * away.
+	 *
+	 * @author matthewsobocinski
+	 */
+	static class ServerInput implements Runnable {
+		private static final Logger logger = Logger.getLogger(ServerInput.class);
+		private BufferedReader serverIn;
+		
+		public ServerInput(BufferedReader serverIn) {
+			this.serverIn = serverIn;
+		}
+		
+		@Override
+		public void run() {
+			// Configure log4j
+			DOMConfigurator.configure("log4jclient.xml");
+			logger.info("Started new ServerInput thread...");
+			try {
+				while(true) {
+					// Accept and print a message from the server
+					String serverInput = serverIn.readLine();
+					if(serverInput == null) {
+						logger.error("The server has crashed! Exiting.");
+						System.exit(0);
+					}
+					logger.info(serverInput);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Helper method to assign variables based on values from properties file.
@@ -77,42 +114,6 @@ public class ClientConnection {
 			props.load(new FileInputStream(propsPath));
 			PORT_NUMBER = Integer.parseInt(props.getProperty(PORT_NUMBER_KEY));
 			IP_ADDRESS = props.getProperty(IP_ADDRESS_KEY);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-}
-
-/**
- * Process input from the server in a separate thread other than that which
- * is used for sending this client's input to the server. This makes the 
- * system full-duplex and ensures broadcast messages can be received right
- * away.
- *
- * @author matthewsobocinski
- */
-class ServerInput implements Runnable {
-	private static final Logger logger = Logger.getLogger(ServerInput.class);
-	private BufferedReader serverIn;
-	
-	public ServerInput(BufferedReader serverIn) {
-		this.serverIn = serverIn;
-	}
-	
-	@Override
-	public void run() {
-		// Configure log4j
-		DOMConfigurator.configure("log4jclient.xml");
-		try {
-			while(true) {
-				// Accept and print a message from the server
-				String serverInput = serverIn.readLine();
-				if(serverInput == null) {
-					logger.error("The server has crashed! Exiting.");
-					System.exit(0);
-				}
-				logger.info(serverInput);
-			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
