@@ -36,7 +36,7 @@ public enum LocationEnum {
 	// Second row
 	STUDY_TO_LIBRARY_HALLWAY("RSRIH", new Location(1,0)),
 	INVALID_LOCATION_ONE("IL1", new Location(1,1)),
-	HALL_TO_LIBRARY_HALLWAY("RHRIH", new Location(1,2)),
+	HALL_TO_LIBRARY_HALLWAY("RHRBH", new Location(1,2)),
 	INVALID_LOCATION_TWO("IL2", new Location(1,3)),
 	LOUNGE_TO_DINING_ROOM_HALLWAY("RLRDH", new Location(1,4)),
 	

@@ -29,42 +29,42 @@ public class Player {
 		this.currentHand = new ArrayList<>();
 	}
 
-	/**
-	 * Accept a move, which will then be validated with the game logic subsystem.
-	 * If the move was not valid, return false. Otherwise, return true.
-	 * 
-	 * @param move a Movement object specifying the move the player wishes to make
-	 * @return whether the move was successful
-	 */
-	private boolean move(Movement move) {
-		return false;
-	}
-
-	/**
-	 * If a player's accusation is false, eliminate them from the game.
-	 * 
-	 */
-	private void eliminate() {
-		this.active = false;
-	}
-
-	/**
-	 * Make an accusation.
-	 * 
-	 * @param accusation
-	 */
-	private void makeAccusation(Accusation accusation) {
-		// Communicate to the game logic subsystem that this player wishes to make an accusation
-	}
-
-	/**
-	 * Make a suggestion.
-	 * 
-	 * @param suggestion
-	 */
-	private void makeSuggestion(Suggestion suggestion) {
-		// Communicate to the game logic subsystem that this player wishes to make a suggestion
-	}
+//	/**
+//	 * Accept a move, which will then be validated with the game logic subsystem.
+//	 * If the move was not valid, return false. Otherwise, return true.
+//	 * 
+//	 * @param move a Movement object specifying the move the player wishes to make
+//	 * @return whether the move was successful
+//	 */
+//	private boolean makeMove(Move move) {
+//		return false;
+//	}
+//
+//	/**
+//	 * If a player's accusation is false, eliminate them from the game.
+//	 * 
+//	 */
+//	public void eliminate() {
+//		this.active = false;
+//	}
+//
+//	/**
+//	 * Make an accusation.
+//	 * 
+//	 * @param accusation
+//	 */
+//	private void makeAccusation(Accusation accusation) {
+//		// Communicate to the game logic subsystem that this player wishes to make an accusation
+//	}
+//
+//	/**
+//	 * Make a suggestion.
+//	 * 
+//	 * @param suggestion
+//	 */
+//	private void makeSuggestion(Suggestion suggestion) {
+//		// Communicate to the game logic subsystem that this player wishes to make a suggestion
+//	}
 
 	/**
 	 * Get whether this player is active.

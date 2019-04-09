@@ -51,7 +51,7 @@ public class ServerConnection {
 			logger.info("Waiting for " + NUM_PLAYERS + " players to connect...");
 			
 			// Create a new game for all players to join
-			Game game = new Game();
+			Game game = new Game(NUM_PLAYERS);
 			
 			// Accept connections until the specified number of players have joined
 			while(playerCount < NUM_PLAYERS) {

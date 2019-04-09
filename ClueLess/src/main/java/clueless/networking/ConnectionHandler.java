@@ -9,9 +9,8 @@ import java.net.Socket;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import clueless.gamelogic.Card;
 import clueless.gamelogic.Game;
-import clueless.gamelogic.Location;
-import clueless.gamelogic.Movement;
 import clueless.gamelogic.Player;
 import clueless.gamelogic.TurnEnforcement;
 
@@ -49,6 +48,7 @@ public class ConnectionHandler implements Runnable {
 		// Store the game 
 		this.game = game;
 		this.initLogger();
+		this.sendClientCards();
 		logger.info("Creating ClientConnectionHandler for Player " + playerCount + "...");
 	}
 	
@@ -66,6 +66,15 @@ public class ConnectionHandler implements Runnable {
 	 */
 	public void sendMessage(String message) {
 		serverOut.println(message);
+	}
+	
+	/**
+	 * Send a client the cards they've been dealt.
+	 */
+	private void sendClientCards() {
+		for(Card card : player.getCurrentHand()) {
+			serverOut.println("Your hand contains card: " + card.getCardName());
+		}
 	}
 
 	@Override
@@ -100,9 +109,12 @@ public class ConnectionHandler implements Runnable {
 					continue;
 				}
 				
-				// DUMMY MOVE for the purposes of verifying broadcast messages
-				boolean moveSuccess = game.validateMove(player, new Movement(new Location(0,0), new Location(0,1)));
-				
+				// If we get here, we can process their turn, check it for validity, etc.
+				// For now, assume all moves given are valid.
+				game.validateMove(player, "AS_PP_LB_LP"); // Accuse Professor Plum (library, lead pipe)
+				// Test broadcasting the move to all players
+				game.broadcastMove(player, "AS_PP_LB_LP");
+
 				// Inform the TurnEnforcement module that a turn has been taken
 				TurnEnforcement.turnMade();
 
