@@ -39,14 +39,6 @@ public class Game {
 	private static final String INVALID_STR = "INVALID";
 	// Used to indicate that a given BoardLocationEntity should be of type Hallway
 	private static final String HALLWAY_STR = "HALLWAY";
-	// Used to indicate that player wants to make an accusation
-	private static final String ACCUSATION_STR = "AA";
-	// Used to indicate that player wants to make a move
-	private static final String MOVE_STR = "MV";
-	// Used to indicate that player wants to make a suggestion
-	private static final String SUGGESTION_STR = "AS";
-	// Used to separate the components of a move string
-	private static final String MOVE_SEPARATOR = "_";
 
 	/**
 	 * Constructor. Create the fields necessary to be encapsulated by a Game object.
@@ -173,18 +165,24 @@ public class Game {
 	 * them to the HashMap of Players.
 	 */
 	private void createPlayers() {
+		boolean playerIsActive = false;
 		CharacterEnum[] characters = CharacterEnum.values();
-		for(int i = 0; i < numPlayers; i++) {
+		for(int i = 0; i < characters.length; i++) {
+			// Only create NUM_PLAYERS active characters/players (the rest will be created, but aren't attached to an actual live player)
+			if(i < numPlayers) {
+				playerIsActive = true;
+			}
+			
 			CharacterEnum character = characters[i];
 			// Extract the fields from the CharacterEnum instance
 			CharacterName name = character.getName();
 			String abbreviation = character.getAbbreviation();
 			Location startingLocation = character.getStartLocation();
 			// Create a new Player object
-			Player player = new Player(abbreviation, name, startingLocation);
+			Player player = new Player(playerIsActive, abbreviation, name, startingLocation);
 			// Place the player at their starting location on the board
 			BoardLocationEntity boardLocationEntity = board[startingLocation.getX()][startingLocation.getY()];
-			// Not the cleanest solution, but workable for our purposes
+			// Not the cleanest solution using instanceof, but workable for our purposes
 			if(boardLocationEntity instanceof Room) {
 				// Add this Player to the Room's list of current Players
 				((Room) boardLocationEntity).getCurrentPlayers().add(player);
@@ -196,6 +194,8 @@ public class Game {
 			}
 			// Add the Player object to the HashMap of Players, using their CharacterName as a key
 			this.players.add(player);
+			// Reset the playerIsActive boolean
+			playerIsActive = false;
 			logger.info("Created player: " + player.toString());
 		}
 	}
@@ -254,6 +254,7 @@ public class Game {
 						System.out.print(String.format("%10s", " | "));
 					}
 				} else {
+					// Print an empty section
 					System.out.print(String.format("%10s", " | "));
 				}
 			}
@@ -265,9 +266,12 @@ public class Game {
 	 * Determine if the given CharacterName can make the given move.
 	 * 
 	 * The String move should be in one of the following formats:
-	 * 		MV_<START_ABBREV>_<END_ABBREV> (make a move from one location to another)
-	 * 		AA_<CHARACTER>_<ROOM>_<WEAPON> (make an accusation)
-	 * 		AS_<CHARACTER>_<ROOM>_<WEAPON> (make a suggestion)
+	 * <ol>
+	 * <li>MV_STARTLOC_ENDLOC (make a move from one location to another)</li>
+	 * <li>AA_CHARACTER_ROOM_WEAPON (make an accusation)</li>
+	 * <li>AS_CHARACTER_ROOM_WEAPON (make a suggestion)</li>
+	 * <li>DS_CARD (disprove a suggestion with a card string)</li>
+	 * </ol>
 	 * 
 	 * @param character the name of the player attempting to move 
 	 * @param move the move to validate (move, accusation, suggestion, etc.)
@@ -275,6 +279,9 @@ public class Game {
 	 */
 	public boolean validateMove(Player player, String move) {
 		logger.info(player.getCharacterName() + " attempted move " + move.toString());
+		
+		// Broadcast the move to all players
+		broadcastMove(player, move);
 		
 		// Options for moving:
 		//	1. Move through one of the doors to the hallway (if it is not blocked). 
@@ -292,7 +299,7 @@ public class Game {
 		// 	2. Whenever a suggestion is made, the room must be the room the one making the suggestion
 		//	is currently in. The suspect in the suggestion is moved to the room in the suggestion. 
 		
-		if(move.startsWith(MOVE_STR)) {
+		if(move.startsWith(Move.MOVE_STR)) {
 			// Check if the move is valid
 			// If this is the player's first move
 			if(player.getNumMoves() == 0) {
@@ -300,32 +307,57 @@ public class Game {
 			}
 			
 			// Split the move string by the separator and extract the values
-			String[] values = move.split(MOVE_SEPARATOR);
+			String[] values = move.split(Move.MOVE_SEP);
 			String startLoc = values[1];
 			String endLoc = values[2];
 			
-		} else if(move.startsWith(ACCUSATION_STR)) {
+			logger.info("Received movement: " + move + " from player " + player.getCharacterName());
+			logger.info("startLoc: " + startLoc);
+			logger.info("endLoc: " + endLoc);
+			
+			// TODO: Logic
+			
+		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
-			String[] values = move.split(MOVE_SEPARATOR);
+			String[] values = move.split(Move.MOVE_SEP);
 			String character = values[1];
 			String room = values[2];
 			String weapon = values[3];
 			
+			logger.info("Received accusation: " + move + " from player " + player.getCharacterName());
+			logger.info("character: " + character);
+			logger.info("room: " + room);
+			logger.info("weapon: " + weapon);
+			
 			// TODO: Logic
 			
-		} else if(move.startsWith(SUGGESTION_STR)) {
+		} else if(move.startsWith(Move.SUGGEST_STR)) {
 			// Split the move string by the separator and extract the values
-			String[] values = move.split(MOVE_SEPARATOR);
+			String[] values = move.split(Move.MOVE_SEP);
 			String character = values[1];
 			String room = values[2];
 			String weapon = values[3];
 			
+			logger.info("Received suggestion: " + move + " from player " + player.getCharacterName());
+			logger.info("character: " + character);
+			logger.info("room: " + room);
+			logger.info("weapon: " + weapon);
+			
 			// TODO: Logic
+			
+		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
+			// Split the move string by the separator and extract the values
+			String[] values = move.split(Move.MOVE_SEP);
+			String card = values[1];
+			
+			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
+			logger.info("card used to disprove: " + card);
 			
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 		}
 
+		// For now, always return true (TODO: Start returning false for invalid moves)
 		return true;
 	}
 
@@ -336,7 +368,7 @@ public class Game {
 	 * @param message the message summarizing the move that was made
 	 */
 	public void broadcastMove(Player player, String move) {
-		// Broadcast the move to each Player
+		// Broadcast the move to each Player by interating over each ConnectionHandler we have
 		for(ConnectionHandler connection : connections) {
 			connection.sendMessage(player.getCharacterName().toString() + " made move " + move);
 		}

@@ -111,9 +111,11 @@ public class ConnectionHandler implements Runnable {
 				
 				// If we get here, we can process their turn, check it for validity, etc.
 				// For now, assume all moves given are valid.
-				game.validateMove(player, "AS_PP_LB_LP"); // Accuse Professor Plum (library, lead pipe)
-				// Test broadcasting the move to all players
-				game.broadcastMove(player, "AS_PP_LB_LP");
+				if(!game.validateMove(player, clientInput)) {
+					logger.info("Received invalid move " + clientInput);
+					serverOut.println("Sorry, that move is invalid. Please try again.");
+					continue;
+				}
 
 				// Inform the TurnEnforcement module that a turn has been taken
 				TurnEnforcement.turnMade();

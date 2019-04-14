@@ -60,6 +60,6 @@ public class Location {
 
 	@Override
 	public String toString() {
-		return "Location (" + x + "," + y + ")";
+		return x + "," + y;
 	}
 }

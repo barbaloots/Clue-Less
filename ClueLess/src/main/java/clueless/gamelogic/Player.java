@@ -17,10 +17,13 @@ public class Player {
 	/**
 	 * Constructor.
 	 * 
-	 * @param character the name of the new Player to create.
+	 * @param active whether this character is attached to a live player
+	 * @param abbreviation the player's abbreviation
+	 * @param characterName the name of the character this player is associated with
+	 * @param location the current location on the board
 	 */
-	public Player(String abbreviation, CharacterName characterName, Location location) {
-		this.active = false;
+	public Player(boolean active, String abbreviation, CharacterName characterName, Location location) {
+		this.active = active;
 		this.numMoves = 0;
 		this.abbreviation = abbreviation;
 		this.notebook = new Notebook();
@@ -28,43 +31,6 @@ public class Player {
 		this.location = location;
 		this.currentHand = new ArrayList<>();
 	}
-
-//	/**
-//	 * Accept a move, which will then be validated with the game logic subsystem.
-//	 * If the move was not valid, return false. Otherwise, return true.
-//	 * 
-//	 * @param move a Movement object specifying the move the player wishes to make
-//	 * @return whether the move was successful
-//	 */
-//	private boolean makeMove(Move move) {
-//		return false;
-//	}
-//
-//	/**
-//	 * If a player's accusation is false, eliminate them from the game.
-//	 * 
-//	 */
-//	public void eliminate() {
-//		this.active = false;
-//	}
-//
-//	/**
-//	 * Make an accusation.
-//	 * 
-//	 * @param accusation
-//	 */
-//	private void makeAccusation(Accusation accusation) {
-//		// Communicate to the game logic subsystem that this player wishes to make an accusation
-//	}
-//
-//	/**
-//	 * Make a suggestion.
-//	 * 
-//	 * @param suggestion
-//	 */
-//	private void makeSuggestion(Suggestion suggestion) {
-//		// Communicate to the game logic subsystem that this player wishes to make a suggestion
-//	}
 
 	/**
 	 * Get whether this player is active.
