@@ -80,5 +80,5 @@ public class TurnEnforcement {
 	 */
 	public static synchronized boolean gameHasStarted() {
 		return gameHasStarted;
-	}
+	}	
 }

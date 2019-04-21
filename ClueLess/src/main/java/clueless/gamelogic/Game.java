@@ -291,9 +291,7 @@ public class Game {
 	 * @param move the move to validate (move, accusation, suggestion, etc.)
 	 * @return whether the move is valid
 	 */
-	public boolean validateMove(Player player, String move) {
-		logger.info(player.getCharacterName() + " attempted move " + move.toString());
-		
+	public boolean validateMove(Player player, String move) {		
 		// TODO: Once a move is deemed to be valid, update the master board
 
 		// Broadcast the move to all players
@@ -371,7 +369,9 @@ public class Game {
 			
 			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
 			player.setNumMoves(player.getNumMoves() + 1);
-
+			
+			// Because the valid move was made, send appropriate prompts to players
+			sendPlayersPrompts(false, null, player);
 		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -389,12 +389,9 @@ public class Game {
 				/*
 				 * TODO: add logic to the ConnectionHandler class for eliminating this player if the accusation is false.
 				 * This will involve the TurnEnforcement.eliminatePlayer() method
-				 */
-				
+				 */	
 			}
-
-			// TODO: Logic
-
+			sendPlayersPrompts(false, null, player);
 		} else if(move.startsWith(Move.SUGGEST_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -403,25 +400,28 @@ public class Game {
 			String weapon = values[3];
 
 			logger.info("Received suggestion: " + move + " from player " + player.getCharacterName());
-			logger.info("character: " + character);
-			logger.info("room: " + room);
-			logger.info("weapon: " + weapon);
-
-			// TODO: Logic
-
+			logger.info("Character: " + character);
+			logger.info("Room: " + room);
+			logger.info("Weapon: " + weapon);
+			
+			sendPlayersPrompts(true, "Character: " + character + " Room: " + room + " Weapon: " + weapon, player);
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
 			String card = values[1];
 
 			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
-			logger.info("card used to disprove: " + card);
-
+			logger.info("Card used to disprove: " + card);
+			
+			// TODO: Logic for handling the attempts to disprove the suggestion
+			// NOTE: We may not want to use this method for disproving suggestions
+			sendPlayersPrompts(false, null, player);
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 		}
 
-		// For now, always return true (TODO: Start returning false for invalid moves)
+		// If the logic falls through to here, we can consider the move to be valid
+		logger.info(player.getCharacterName() + " made move " + move.toString());
 		return true;
 	}
 
@@ -440,6 +440,46 @@ public class Game {
 		int yDiff = locTwo.getY() - locTwo.getY();
 		int distance = (int) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
 		return distance == 1;
+	}
+	
+	/**
+	 * Send appropriate prompts to each player based on whose turn it currently is
+	 * and what move was just made.
+	 * 
+	 * @param suggestionMade whether the move just made was a suggestion
+	 * @param suggestedValues the values that were suggested (i.e., room, character, and weapon)
+	 * @param player the <code>Player</code> object of the player who just made a move
+	 */
+	public void sendPlayersPrompts(boolean suggestionMade, String suggestedValues, Player player) {
+		int currentPlayer = TurnEnforcement.getCurrentPlayer();
+		String justMovedCharacter = player.getCharacterName().getCharacterName();
+		
+		/*
+		 * Add a special case for handling suggestions because that will require input from each
+		 * active user.
+		 */
+		if(suggestionMade) {
+			for(ConnectionHandler connection : connections) {
+				String characterName = connection.getPlayer().getCharacterName().getCharacterName();
+				if(!characterName.equals(justMovedCharacter)) {
+					connection.sendMessage("Please enter a card to refute the suggestion: " + suggestedValues);
+				}
+			}
+		} else {
+			for(ConnectionHandler connection : connections) {
+				int playerNumber = connection.getPlayerNumber();
+				String characterName = connection.getPlayer().getCharacterName().getCharacterName();
+				if(currentPlayer == playerNumber) {
+					connection.sendMessage(characterName + ", it's your turn.");
+					connection.sendMessage("To move, use the syntax MV_XY");
+					connection.sendMessage("To make a suggestion, use the syntax AS_<Character>_<Room>_<Weapon>");
+					connection.sendMessage("To make an accusation, use the syntax AA_<Character>_<Room>_<Weapon>");
+					connection.sendMessage("To end your turn, enter 'Done'");
+				} else {
+					connection.sendMessage("Player " + currentPlayer + " is currently making a turn.");
+				}
+			}
+		}
 	}
 
 	/**

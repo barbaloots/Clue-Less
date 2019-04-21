@@ -49,8 +49,6 @@ public class ClientConnection {
 	private static final String IP_ADDRESS_KEY = "ipAddress";
 	// Game-related constants
 	private static final String GAMEOVER = "GAMEOVER";
-	// Seeing issues related to threading that's allowing only two cards to be processed, so collect all card strings
-	private static ArrayList<String> cardStrings = new ArrayList<>();
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
@@ -78,7 +76,7 @@ public class ClientConnection {
 
 			Scanner input = new Scanner(System.in);
 			// Continually accept input
-			while (input.hasNext()) {	
+			while (input.hasNext()) {
 				// Send the client input to the server
 				clientOut.println(input.nextLine());
 			}

@@ -69,6 +69,8 @@ public class ServerConnection {
 			TurnEnforcement.initializePlayerArray(NUM_PLAYERS);
 			// Make sure the Game instance has the ability to broadcast messages/send board updates
 			game.setConnections(connections);
+			// Send the initial prompts out to players (first player in ArrayList starts)
+			game.sendPlayersPrompts(false, null, game.getPlayers().get(0));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		} finally {

@@ -194,4 +194,22 @@ public class ConnectionHandler implements Runnable {
 		TurnEnforcement.eliminatePlayer(playerNumber);
 		System.out.println("Player " + playerNumber + " has disconnected from the game.");
 	}
+	
+	/**
+	 * Helpful getter for determining what prompts to send players.
+	 * 
+	 * @return the <code>Player</code> object associated with this <code>ConnectionHandler</code>.
+	 */
+	public Player getPlayer() {
+		return player;
+	}
+	
+	/**
+	 * Another helpful getter for determining what prompts to send players.
+	 * 
+	 * @return the player number associated with this <code>ConnectionHandler</code>.
+	 */
+	public int getPlayerNumber() {
+		return playerNumber;
+	}
 }
