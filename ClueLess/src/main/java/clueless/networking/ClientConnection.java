@@ -49,6 +49,8 @@ public class ClientConnection {
 	private static final String IP_ADDRESS_KEY = "ipAddress";
 	// Game-related constants
 	private static final String GAMEOVER = "GAMEOVER";
+	// Seeing issues related to threading that's allowing only two cards to be processed, so collect all card strings
+	private static ArrayList<String> cardStrings = new ArrayList<>();
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
@@ -72,7 +74,7 @@ public class ClientConnection {
 			new Thread(serverInput).start();
 
 			// Print the acknowledgement from the server
-			logger.info(serverIn.readLine());
+			//logger.info(serverIn.readLine());
 
 			Scanner input = new Scanner(System.in);
 			// Continually accept input
@@ -95,7 +97,7 @@ public class ClientConnection {
 	 */
 	static class ServerInput implements Runnable {
 		private static final Logger logger = Logger.getLogger(ServerInput.class);
-		private BufferedReader serverIn;
+		private static BufferedReader serverIn;
 		private static final int BOARD_HEIGHT = 5;
 		private static final int BOARD_WIDTH = 5;
 		private static final String SERVER_MSG_SEP = "_";
@@ -120,6 +122,8 @@ public class ClientConnection {
 		 * @param serverIn the reader object for obtaining input from the server
 		 */
 		public ServerInput(BufferedReader serverIn) {
+			// Configure log4j
+			DOMConfigurator.configure("log4jclient.xml");
 			this.serverIn = serverIn;
 			this.notebook = new Notebook();
 			this.currentHand = new ArrayList<>();
@@ -155,9 +159,7 @@ public class ClientConnection {
 
 		@Override
 		public void run() {
-			// Configure log4j
-			DOMConfigurator.configure("log4jclient.xml");
-			logger.debug("Started new ServerInput thread...");
+			logger.debug("Started new ServerInput thread");
 			try {
 				while(true) {
 					// Accept and print a message from the server
@@ -186,7 +188,6 @@ public class ClientConnection {
 
 					// Strip the prefix, which tells us what kind of info we have just received from the server
 					String msgPrefix = serverInput.split(SERVER_MSG_SEP)[0];
-					logger.info("Received a message of type " + msgPrefix + " from the server.");
 
 					switch(msgPrefix) {
 						case CHARACTER_NAME: {
@@ -264,8 +265,7 @@ public class ClientConnection {
 			int newY = Integer.parseInt(values[2].substring(1, 2));
 			logger.info("Received new location of (" + newX + "," + newY + ") for entity " + entityAbbrev);
 			
-			// Search the board for this abbreviation and remove it from the obsolete location
-			// TODO: This won't be necessary if the old location can be worked into the server's message
+			// Search the board for this abbreviation and remove it from the now obsolete location
 			for(int x = 0; x < BOARD_WIDTH; x++) {
 				for(int y = 0; y < BOARD_HEIGHT; y++) {
 					BoardLocationEntity boardLocEntity = board[x][y];
@@ -386,7 +386,13 @@ public class ClientConnection {
 				}
 				System.out.println("\n---------------------------------------------------");
 			}
-		}
+			
+			System.out.println("Your current hand:");
+			// Display the player's hand to them
+			for(Card card : currentHand) {
+				System.out.println(card.toString());
+			}
+		}	
 	}
 
 	/**
