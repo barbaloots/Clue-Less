@@ -54,8 +54,8 @@ public class Game {
 		this.players = new ArrayList<>();
 		this.gameSolution = new GameSolution();
 		this.initLogger();
-		this.generateCards();
 		this.createPlayers();
+		this.generateCards();
 		this.dealCards();
 		this.populateBoard();
 		this.printBoard();
@@ -95,7 +95,7 @@ public class Game {
 	 * Shuffle and deal out the remaining cards (cards that are not part of the true game solution).
 	 */
 	private void dealCards() {
-		logger.debug("The true game solution is: " + gameSolution.toString());
+		logger.info("The true game solution is: " + gameSolution.toString());
 		ArrayList<Card> remainingCards = new ArrayList<>();
 
 		// Collect cards that aren't part of the game's solution
@@ -139,6 +139,10 @@ public class Game {
 	 * Populate the 2D BoardEntityLocation array by iterating over the LocationEnum's values.
 	 */
 	private void populateBoard() {
+		/*
+		 * Place the locations on the board. This includes hallways, rooms, and invalid locations
+		 * (i.e., empty squares no one can go to).
+		 */
 		for(LocationEnum boardLoc : LocationEnum.values()) {
 			Location location = boardLoc.getLocation();
 			String name = boardLoc.name();
@@ -158,6 +162,28 @@ public class Game {
 				board[location.getX()][location.getY()] = room;
 			}
 		}
+
+		/*
+		 * Place the characters on the board. It's important to do this now because the server will soon
+		 * send out the locations of all players/board entities to all clients.
+		 */
+		for(Player player : players) {
+			Location startingLocation = player.getLocation();
+			// Place the player at their starting location on the board
+			BoardLocationEntity boardLocationEntity = board[startingLocation.getX()][startingLocation.getY()];
+			// Not the cleanest solution using instanceof, but workable for our purposes
+			if(boardLocationEntity instanceof Room) {
+				// Add this Player to the Room's list of current Players
+				((Room) boardLocationEntity).getCurrentPlayers().add(player);
+			} else if(boardLocationEntity instanceof Hallway) {
+				// Set this Player as the Player occupying the Hallway
+				((Hallway) boardLocationEntity).setPlayer(player);
+				// Mark the Hallway as occupied
+				((Hallway) boardLocationEntity).setOccupied(true);
+			} else {
+				logger.error("boardLocationEntity is null");
+			}
+		}
 	}
 
 	/**
@@ -172,7 +198,7 @@ public class Game {
 			if(i < numPlayers) {
 				playerIsActive = true;
 			}
-			
+
 			CharacterEnum character = characters[i];
 			// Extract the fields from the CharacterEnum instance
 			CharacterName name = character.getName();
@@ -180,18 +206,6 @@ public class Game {
 			Location startingLocation = character.getStartLocation();
 			// Create a new Player object
 			Player player = new Player(playerIsActive, abbreviation, name, startingLocation);
-			// Place the player at their starting location on the board
-			BoardLocationEntity boardLocationEntity = board[startingLocation.getX()][startingLocation.getY()];
-			// Not the cleanest solution using instanceof, but workable for our purposes
-			if(boardLocationEntity instanceof Room) {
-				// Add this Player to the Room's list of current Players
-				((Room) boardLocationEntity).getCurrentPlayers().add(player);
-			} else if(boardLocationEntity instanceof Hallway) {
-				// Set this Player as the Player occupying the Hallway
-				((Hallway) boardLocationEntity).setPlayer(player);
-				// Mark the Hallway as occupied
-				((Hallway) boardLocationEntity).setOccupied(true);
-			}
 			// Add the Player object to the HashMap of Players, using their CharacterName as a key
 			this.players.add(player);
 			// Reset the playerIsActive boolean
@@ -267,7 +281,7 @@ public class Game {
 	 * 
 	 * The String move should be in one of the following formats:
 	 * <ol>
-	 * <li>MV_STARTLOC_ENDLOC (make a move from one location to another)</li>
+	 * <li>MV_ENDLOC (make a move from one location to another)</li>
 	 * <li>AA_CHARACTER_ROOM_WEAPON (make an accusation)</li>
 	 * <li>AS_CHARACTER_ROOM_WEAPON (make a suggestion)</li>
 	 * <li>DS_CARD (disprove a suggestion with a card string)</li>
@@ -280,9 +294,11 @@ public class Game {
 	public boolean validateMove(Player player, String move) {
 		logger.info(player.getCharacterName() + " attempted move " + move.toString());
 		
+		// TODO: Once a move is deemed to be valid, update the master board
+
 		// Broadcast the move to all players
 		broadcastMove(player, move);
-		
+
 		// Options for moving:
 		//	1. Move through one of the doors to the hallway (if it is not blocked). 
 		//	2. Take a secret passage to a diagonally opposite room (if there is one) and make a
@@ -298,67 +314,132 @@ public class Game {
 		//	accusation).
 		// 	2. Whenever a suggestion is made, the room must be the room the one making the suggestion
 		//	is currently in. The suspect in the suggestion is moved to the room in the suggestion. 
-		
+
 		if(move.startsWith(Move.MOVE_STR)) {
-			// Check if the move is valid
-			// If this is the player's first move
-			if(player.getNumMoves() == 0) {
-				// Ensure that their first move is to the room adjacent to their home square
-			}
-			
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
-			String startLoc = values[1];
-			String endLoc = values[2];
+			String endLoc = values[1];
+			int endLocX = Integer.parseInt(endLoc.substring(0,1));
+			int endLocY = Integer.parseInt(endLoc.substring(1,2));
+			BoardLocationEntity boardLocEntity = board[endLocX][endLocY];
 			
 			logger.info("Received movement: " + move + " from player " + player.getCharacterName());
-			logger.info("startLoc: " + startLoc);
-			logger.info("endLoc: " + endLoc);
+			/*
+			 * First, get the current location of this player, which will be the most important info
+			 * when determining if the given move is valid.
+			 */
+			Location currentLoc = player.getLocation();
+			int currentX = currentLoc.getX();
+			int currentY = currentLoc.getY();
 			
-			// TODO: Logic
+			/*
+			 * If this is the player's first move, it must be to the hallway adjacent to their home square
+			 */
+			if(player.getNumMoves() == 0) {
+				// If the end location isn't a hallway, it's an invalid move
+				if(!(boardLocEntity instanceof Hallway)) {
+					logger.info("Player " + player.getCharacterName().getCharacterName() + "'s first move attempt was not to a hallway. Invalid move.");
+					return false;
+				}
+			}
 			
+			/*
+			 * If the attempted move is to a hallway, the hallway cannot be occupied.
+			 */
+			if(boardLocEntity instanceof Hallway) {
+				Hallway hallway = (Hallway) boardLocEntity;
+				// If the hallway is occupied, the player can't move there
+				if(hallway.isOccupied()) {
+					logger.info("Player " + player.getCharacterName().getCharacterName() + " attempted to move to a non-empty hallway.");
+					return false;
+				}
+				
+				// If the hallway isn't occupied, it must be adjacent to the player's current location
+				boolean isAdjacent = checkHallwayAdjacency(currentLoc, new Location(endLocX, endLocY));
+				if(!isAdjacent) {
+					logger.info("Player " + player.getCharacterName().getCharacterName() + " attempted to move to a non-adjacent hallway.");
+					return false;
+				}
+			}
+
+			// TODO: Still need much more logic here...
+
+			/*
+			 * If we've gotten here, the move is valid and we must update the local "master" board,
+			 * as well as notify all of the client's about he valid move.
+			 */
+			
+			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
+			player.setNumMoves(player.getNumMoves() + 1);
+
 		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
 			String character = values[1];
 			String room = values[2];
 			String weapon = values[3];
-			
+
 			logger.info("Received accusation: " + move + " from player " + player.getCharacterName());
 			logger.info("character: " + character);
 			logger.info("room: " + room);
 			logger.info("weapon: " + weapon);
 			
+			boolean correctAccusation = this.gameSolution.checkAccusation(character, weapon, room);
+			if(!correctAccusation) {
+				/*
+				 * TODO: add logic to the ConnectionHandler class for eliminating this player if the accusation is false.
+				 * This will involve the TurnEnforcement.eliminatePlayer() method
+				 */
+				
+			}
+
 			// TODO: Logic
-			
+
 		} else if(move.startsWith(Move.SUGGEST_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
 			String character = values[1];
 			String room = values[2];
 			String weapon = values[3];
-			
+
 			logger.info("Received suggestion: " + move + " from player " + player.getCharacterName());
 			logger.info("character: " + character);
 			logger.info("room: " + room);
 			logger.info("weapon: " + weapon);
-			
+
 			// TODO: Logic
-			
+
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
 			String card = values[1];
-			
+
 			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
 			logger.info("card used to disprove: " + card);
-			
+
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 		}
 
 		// For now, always return true (TODO: Start returning false for invalid moves)
 		return true;
+	}
+
+	/**
+	 * Check if two <code>Location</code> objects are adjacent to one another.
+	 * NOTE: This should ONLY be used to check if a square is adjacent to a 
+	 * Hallway's location because hallways are never diagonal. Therefore,
+	 * if a hallway's distance from a square is anything other than 1, it's
+	 * an invalid move.
+	 * @param locOne the first <code>Location</code>
+	 * @param locTwo the second <code>Location</code>
+	 * @return whether the two locations are adjacent to one another
+	 */
+	private boolean checkHallwayAdjacency(Location locOne, Location locTwo) {
+		int xDiff = locTwo.getX() - locOne.getX();
+		int yDiff = locTwo.getY() - locTwo.getY();
+		int distance = (int) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+		return distance == 1;
 	}
 
 	/**

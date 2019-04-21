@@ -31,6 +31,14 @@ public class Player {
 		this.location = location;
 		this.currentHand = new ArrayList<>();
 	}
+	
+	/**
+	 * Constructor for creating dummy players client-side.
+	 * @param abbreviation the player's abbreviation
+	 */
+	public Player(String abbreviation) {
+		this.abbreviation = abbreviation;
+	}
 
 	/**
 	 * Get whether this player is active.

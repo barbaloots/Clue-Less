@@ -70,4 +70,26 @@ public class GameSolution extends CluelessTriple {
 		// Invoke the overriden equals() method to simplify comparison
 		return this.equals(accusation);
 	}
+	
+	/**
+	 * Alternative way of checking whether an accusation is valid.
+	 * 
+	 * @param character the character being accused
+	 * @param weapon the weapon being "accused"
+	 * @param room the room being "accused"
+	 * @return whether the accusation matches the true game solution
+	 */
+	public boolean checkAccusation(String character, String weapon, String room) {
+		if(!character.equals(this.getCharacterName().getCharacterName())) {
+			return false;
+		}
+		if(!weapon.equals(this.getWeaponType().getWeapon())) {
+			return false;
+		}
+		if(!room.equals(this.getRoomName().getRoomName())) {
+			return false;
+		}
+		
+		return true;
+	}
 }
