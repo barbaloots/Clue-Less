@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * An abstract class that allows us to store objects in the 2D-array.

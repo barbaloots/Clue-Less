@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Enum class for the card types

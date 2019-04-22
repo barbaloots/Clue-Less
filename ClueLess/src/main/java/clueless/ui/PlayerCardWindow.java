@@ -1,6 +1,6 @@
-package clueless.ui;
+package main.java.clueless.ui;
 
-import clueless.gamelogic.Player;
+import main.java.clueless.gamelogic.Player;
 
 /**
  * Class for players' three cards window UI

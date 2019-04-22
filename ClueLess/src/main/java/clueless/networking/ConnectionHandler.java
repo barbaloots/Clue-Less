@@ -1,18 +1,23 @@
-package clueless.networking;
+package main.java.clueless.networking;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import clueless.gamelogic.Card;
-import clueless.gamelogic.Game;
-import clueless.gamelogic.Player;
-import clueless.gamelogic.TurnEnforcement;
+import main.java.clueless.gamelogic.BoardLocationEntity;
+import main.java.clueless.gamelogic.Card;
+import main.java.clueless.gamelogic.Game;
+import main.java.clueless.gamelogic.Hallway;
+import main.java.clueless.gamelogic.Move;
+import main.java.clueless.gamelogic.Player;
+import main.java.clueless.gamelogic.Room;
+import main.java.clueless.gamelogic.TurnEnforcement;
 
 /**
  * A SERVER-SIDE class that handles each connection made to the server with a different thread.
@@ -26,6 +31,12 @@ public class ConnectionHandler implements Runnable {
 	private Game game;
 	private BufferedReader clientIn = null;
 	private PrintWriter serverOut = null;
+	// Prefixes/constants for info that will be sent by the server to players (through broadcast or a singular message)
+	private static final String SERVER_MSG_SEP = "_";
+	private static final String CHARACTER_NAME = "CN";
+	private static final String CARD = "CARD";
+	private static final String NEW_LOCATION = "NL";
+	private static final String SUGGESTION = "SUGG";
 
 	/**
 	 * Instantiate a ConnectionHandler for maintaining the individual connections made by each client.
@@ -47,7 +58,9 @@ public class ConnectionHandler implements Runnable {
 		this.player = player;
 		// Store the game 
 		this.game = game;
+		// Initialize the logger
 		this.initLogger();
+		// Send each of the clients their respective cards
 		this.sendClientCards();
 		logger.info("Creating ClientConnectionHandler for Player " + playerCount + "...");
 	}
@@ -73,7 +86,7 @@ public class ConnectionHandler implements Runnable {
 	 */
 	private void sendClientCards() {
 		for(Card card : player.getCurrentHand()) {
-			serverOut.println("Your hand contains card: " + card.getCardName());
+			serverOut.println(CARD + SERVER_MSG_SEP + card.getCardType() + SERVER_MSG_SEP + card.getCardName());
 		}
 	}
 
@@ -81,6 +94,36 @@ public class ConnectionHandler implements Runnable {
 	public void run() {
 		logger.info("Starting new thread for Player " + playerNumber + "...");
 		serverOut.println("Welcome, Player " + playerNumber + "! Your character is " + player.getCharacterName().getCharacterName() + ".");
+		// Send the player their character name as an abbreviation
+		serverOut.println(CHARACTER_NAME + SERVER_MSG_SEP + player.getAbbreviation());
+		// Send the client the locations of objects on the board so they can populate their local board
+		BoardLocationEntity[][] gameBoard = this.game.getBoard();
+		for(int x = 0; x < gameBoard.length; x++) {
+			for(int y = 0; y < gameBoard[0].length; y++) {
+				BoardLocationEntity boardLocEntity = gameBoard[x][y];
+				// If it's a hallway and it's occupied, send the info
+				if(boardLocEntity instanceof Hallway) {
+					Hallway hallway = (Hallway) boardLocEntity;
+					if(hallway.isOccupied()) {
+						String playerAbbrev = hallway.getPlayer().getAbbreviation();
+						// Send a message that basically says "New location of this player is this" 
+						serverOut.println(NEW_LOCATION + SERVER_MSG_SEP + playerAbbrev + SERVER_MSG_SEP + x + y);
+					}
+				}
+				// If it's a room and there are occupants, send the info
+				if(boardLocEntity instanceof Room) {
+					Room room = (Room) boardLocEntity;
+					if(!room.getCurrentPlayers().isEmpty()) {
+						ArrayList<Player> currentPlayers = room.getCurrentPlayers();
+						for(Player player : currentPlayers) {
+							String playerAbbrev = player.getAbbreviation();
+							serverOut.println(NEW_LOCATION + SERVER_MSG_SEP + playerAbbrev + x + y);
+						}
+					}
+				}
+			}
+		}
+		
 		String clientInput = null;
 
 		// Listen indefinitely for input from clients
@@ -109,6 +152,27 @@ public class ConnectionHandler implements Runnable {
 					continue;
 				}
 				
+				/*
+				 * Need this special case for handling accusations that might be false.
+				 * If validateMove() returns false for an accusation, the player is eliminated.
+				 * If validateMove() returns true for an accusation, the player wins.
+				 */
+				if(clientInput.startsWith(Move.ACCUS_STR)) {
+					if(game.validateMove(player, clientInput)) {
+						logger.info("Player " + player.getCharacterName().getCharacterName() + " has made a correct accusation and wins the game.");
+						// Send a game over message to all players
+						this.game.broadcastMove(player, "GAMEOVER");
+						// Kill the server (i.e., game over)
+						System.exit(0);
+					} else {
+						logger.info("Player " + player.getCharacterName().getCharacterName() + " has made a false accusation and loses.");
+						// Eliminate the player (i.e., skip all of their future turns)
+						TurnEnforcement.eliminatePlayer(playerNumber);
+						// Mark that a turn has been made
+						TurnEnforcement.turnMade();
+					}
+				}
+				
 				// If we get here, we can process their turn, check it for validity, etc.
 				// For now, assume all moves given are valid.
 				if(!game.validateMove(player, clientInput)) {
@@ -129,5 +193,23 @@ public class ConnectionHandler implements Runnable {
 		
 		TurnEnforcement.eliminatePlayer(playerNumber);
 		System.out.println("Player " + playerNumber + " has disconnected from the game.");
+	}
+	
+	/**
+	 * Helpful getter for determining what prompts to send players.
+	 * 
+	 * @return the <code>Player</code> object associated with this <code>ConnectionHandler</code>.
+	 */
+	public Player getPlayer() {
+		return player;
+	}
+	
+	/**
+	 * Another helpful getter for determining what prompts to send players.
+	 * 
+	 * @return the player number associated with this <code>ConnectionHandler</code>.
+	 */
+	public int getPlayerNumber() {
+		return playerNumber;
 	}
 }

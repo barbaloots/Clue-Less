@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Class for the room type of card

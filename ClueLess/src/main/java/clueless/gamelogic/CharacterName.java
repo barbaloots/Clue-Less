@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Make iterating over characters easier.

@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Store all weapon types in an enum (just makes it easier
@@ -9,7 +9,7 @@ package clueless.gamelogic;
  */
 public enum WeaponType {
 	ROPE("ROPE"),
-	LEAD_PIPE("LEAD_PIPE"),
+	LEAD_PIPE("LEADPIPE"),
 	KNIFE("KNIFE"),
 	WRENCH("WRENCH"),
 	CANDLESTICK("CANDLESTICK"),

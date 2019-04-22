@@ -1,6 +1,6 @@
-package clueless.gamelogic.locationenums;
+package main.java.clueless.gamelogic.locationenums;
 
-import clueless.gamelogic.Location;
+import main.java.clueless.gamelogic.Location;
 
 /**
  * Store the locations of each room and hallway in a 5x5 grid (includes 

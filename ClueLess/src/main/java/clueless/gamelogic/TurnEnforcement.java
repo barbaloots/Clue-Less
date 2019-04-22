@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Enforce player turn order using a primitive array and a counter.
@@ -80,5 +80,5 @@ public class TurnEnforcement {
 	 */
 	public static synchronized boolean gameHasStarted() {
 		return gameHasStarted;
-	}
+	}	
 }

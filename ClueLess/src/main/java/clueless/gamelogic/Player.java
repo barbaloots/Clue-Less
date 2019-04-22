@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 import java.util.ArrayList;
 
@@ -30,6 +30,14 @@ public class Player {
 		this.characterName = characterName;
 		this.location = location;
 		this.currentHand = new ArrayList<>();
+	}
+	
+	/**
+	 * Constructor for creating dummy players client-side.
+	 * @param abbreviation the player's abbreviation
+	 */
+	public Player(String abbreviation) {
+		this.abbreviation = abbreviation;
 	}
 
 	/**

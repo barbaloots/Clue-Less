@@ -1,4 +1,4 @@
-package clueless.networking;
+package main.java.clueless.networking;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,8 +10,8 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import clueless.gamelogic.Game;
-import clueless.gamelogic.TurnEnforcement;
+import main.java.clueless.gamelogic.Game;
+import main.java.clueless.gamelogic.TurnEnforcement;
 
 /**
  * Start the server and accept connections from clients.
@@ -69,6 +69,8 @@ public class ServerConnection {
 			TurnEnforcement.initializePlayerArray(NUM_PLAYERS);
 			// Make sure the Game instance has the ability to broadcast messages/send board updates
 			game.setConnections(connections);
+			// Send the initial prompts out to players (first player in ArrayList starts)
+			game.sendPlayersPrompts(false, null, game.getPlayers().get(0));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		} finally {

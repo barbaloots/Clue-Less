@@ -1,4 +1,4 @@
-package clueless.gamelogic;
+package main.java.clueless.gamelogic;
 
 /**
  * Make iterating over rooms easier.
@@ -10,8 +10,8 @@ public enum RoomName {
 	HALL("HALL"),
 	LOUNGE("LOUNGE"),
 	LIBRARY("LIBRARY"),
-	BILLIARD_ROOM("BILLIARD_ROOM"),
-	DINING_ROOM("DINING_ROOM"),
+	BILLIARDROOM("BILLIARDROOM"),
+	DININGROOM("DININGROOM"),
 	CONSERVATORY("CONSERVATORY"),
 	BALLROOM("BALLROOM"),
 	KITCHEN("KITCHEN");
