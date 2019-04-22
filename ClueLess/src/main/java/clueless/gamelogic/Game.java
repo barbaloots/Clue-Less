@@ -8,6 +8,8 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 import clueless.gamelogic.locationenums.LocationEnum;
 import clueless.networking.ConnectionHandler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Maintain informaton related to the current state of the game.
@@ -293,9 +295,14 @@ public class Game {
 	 */
 	public boolean validateMove(Player player, String move) {		
 		// TODO: Once a move is deemed to be valid, update the master board
-
-		// Broadcast the move to all players
-		broadcastMove(player, move);
+                
+               if(!validateInput(move)) {
+                  //If failed, don't need to broadcast as it was just a user typo
+                  return false;
+               }else{
+		// Broadcast the valid move to all players
+		broadcastMove(player, move);  
+               }
 
 		// Options for moving:
 		//	1. Move through one of the doors to the hallway (if it is not blocked). 
@@ -494,6 +501,19 @@ public class Game {
 			connection.sendMessage(player.getCharacterName().toString() + " made move " + move);
 		}
 	}
+        
+        public boolean validateInput (String move){
+               //Valid input to ensure string is valid using regular expression
+               String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
+               Pattern a = Pattern.compile(regExpPattern);
+               Matcher matcher = a.matcher(move);
+                  if (matcher.find( )) {
+                     return true;
+                  }else {
+                     logger.info("Move " + move + " failed regexp match " + a);
+                     return false;
+                  }           
+        }                
 
 	public boolean isActive() {
 		return active;
