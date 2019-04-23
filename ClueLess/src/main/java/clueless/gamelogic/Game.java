@@ -504,15 +504,16 @@ public class Game {
         
         public boolean validateInput (String move){
                //Valid input to ensure string is valid using regular expression
-               String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
+//               String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
+               String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$|^[A-Za-z]{2}(_[A-Za-z]{4,10}){1,3}|(?i)DONE(?-i)";
                Pattern a = Pattern.compile(regExpPattern);
                Matcher matcher = a.matcher(move);
-//                  if (matcher.find( )) {
+                  if (matcher.find( )) {
                      return true;
-//                  }else {
-//                     logger.info("Move " + move + " failed regexp match " + a);
-//                     return false;
-//                  }           
+                  }else {
+                     logger.info("Move " + move + " failed regexp match " + a);
+                     return false;
+                  }           
         }                
 
 	public boolean isActive() {
