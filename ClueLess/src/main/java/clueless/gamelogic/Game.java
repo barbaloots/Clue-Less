@@ -507,12 +507,12 @@ public class Game {
                String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
                Pattern a = Pattern.compile(regExpPattern);
                Matcher matcher = a.matcher(move);
-                  if (matcher.find( )) {
+//                  if (matcher.find( )) {
                      return true;
-                  }else {
-                     logger.info("Move " + move + " failed regexp match " + a);
-                     return false;
-                  }           
+//                  }else {
+//                     logger.info("Move " + move + " failed regexp match " + a);
+//                     return false;
+//                  }           
         }                
 
 	public boolean isActive() {
