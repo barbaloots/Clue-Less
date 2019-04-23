@@ -43,9 +43,9 @@ public enum LocationEnum {
 	// Third row
 	LIBRARY("RI", new Location(2,0)),
 	LIBRARY_TO_BILLIARD_ROOM_HALLWAY("RIRBH", new Location(2,1)),
-	BILLIARD_ROOM("RB", new Location(2,2)),
+	BILLIARDROOM("RB", new Location(2,2)),
 	BILLIARD_ROOM_TO_DINING_ROOM_HALLWAY("RBRDH", new Location(2,3)),
-	DINING_ROOM("RD", new Location(2,4)),
+	DININGROOM("RD", new Location(2,4)),
 	
 	// Fourth row
 	LIBRARY_TO_CONSERVATORY_HALLWAY("RIRCH", new Location(3,0)),

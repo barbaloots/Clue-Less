@@ -26,6 +26,7 @@ import clueless.gamelogic.Player;
 import clueless.gamelogic.Room;
 import clueless.gamelogic.RoomCard;
 import clueless.gamelogic.WeaponCard;
+import clueless.gamelogic.WeaponType;
 import clueless.gamelogic.locationenums.LocationEnum;
 
 /**
@@ -163,7 +164,7 @@ public class ClientConnection {
 					// Accept and print a message from the server
 					String serverInput = serverIn.readLine();
 					if(serverInput == null) {
-						logger.error("The server has either ended the game or crashed. Now exiting - thanks for playing.");
+						System.out.println("The server has either ended the game or crashed. Now exiting - thanks for playing.");
 						System.exit(0);
 					}
 
@@ -178,32 +179,32 @@ public class ClientConnection {
 					 * *GAMEOVER* - a correct accusation was made and the game is over
 					 */
 					if(serverInput.contains(GAMEOVER)) {
-						logger.info("A correct accusation was made and the game is over.");
+						System.out.println("A correct accusation was made and the game is over.");
 						System.exit(0);
 					}
-					
-					logger.info(serverInput);
+
+					System.out.println(serverInput);
 
 					// Strip the prefix, which tells us what kind of info we have just received from the server
 					String msgPrefix = serverInput.split(SERVER_MSG_SEP)[0];
 
 					switch(msgPrefix) {
-						case CHARACTER_NAME: {
-							handleCharacterName(serverInput);
-							break;
-						}
-						case CARD: {
-							handleCard(serverInput);
-							break;
-						}
-						case NEW_LOCATION: {
-							handleNewLocation(serverInput);
-							break;
-						}
-						case SUGGESTION: {
-							handleSuggestion(serverInput);
-							break;
-						}
+					case CHARACTER_NAME: {
+						handleCharacterName(serverInput);
+						break;
+					}
+					case CARD: {
+						handleCard(serverInput);
+						break;
+					}
+					case NEW_LOCATION: {
+						handleNewLocation(serverInput);
+						break;
+					}
+					case SUGGESTION: {
+						handleSuggestion(serverInput);
+						break;
+					}
 					}
 				}
 			} catch (IOException e) {
@@ -259,10 +260,10 @@ public class ClientConnection {
 		private void handleNewLocation(String serverInput) {
 			String[] values = serverInput.split(SERVER_MSG_SEP);
 			String entityAbbrev = values[1];
-			int newX = Integer.parseInt(values[2].substring(0, 1));
-			int newY = Integer.parseInt(values[2].substring(1, 2));
+			int newX = Integer.parseInt(values[2].substring(0,1));
+			int newY = Integer.parseInt(values[2].substring(1,2));
 			logger.info("Received new location of (" + newX + "," + newY + ") for entity " + entityAbbrev);
-			
+
 			// Search the board for this abbreviation and remove it from the now obsolete location
 			for(int x = 0; x < BOARD_WIDTH; x++) {
 				for(int y = 0; y < BOARD_HEIGHT; y++) {
@@ -296,7 +297,7 @@ public class ClientConnection {
 					}
 				}
 			}
-			
+
 			// Put the player at the new location on the local board (i.e., the board this client can actually view)
 			BoardLocationEntity boardLocEntity = board[newX][newY];
 			if(boardLocEntity instanceof Hallway) {
@@ -312,7 +313,7 @@ public class ClientConnection {
 			} else {
 				logger.error("Received a bad new location message from server: " + serverInput);
 			}
-			
+
 			printBoard();
 		}
 
@@ -330,10 +331,48 @@ public class ClientConnection {
 		 * ensuring the board is legible when printed to the console for early debugging.
 		 */
 		private void printBoard() {
-			System.out.println("\nCURRENT CLUELESS BOARD:");
-			System.out.println("Rooms are two letters in length and start with 'R'");
-			System.out.println("Hallways are of the format Room 1, Room 2, 'H'");
-			System.out.println("---------------------------------------------------");
+			System.out.println("\n\n\nYour Clueless character is " + characterName);
+			System.out.println("Your current hand contains these cards:");
+			// Display the player's hand to them
+			for(int i = 0; i < currentHand.size(); i++) {
+				Card card = currentHand.get(i);
+				System.out.print("Card " + (i+1) + ": " + card.getCardName() + " (" + card.getCardType() + ")");
+				if(i != (currentHand.size() - 1)) {
+					System.out.print(", ");
+				}
+			}
+			// Print the abbreviations they should use for moves
+			System.out.println("\n\nLocation abbreviations:");
+			LocationEnum[] locations = LocationEnum.values();
+			for(int i = 0; i < locations.length; i++) {
+				LocationEnum location = locations[i];
+				// Don't print invalid locations
+				if(location.name().startsWith(INVALID_STR)) {
+					continue;
+				}
+				// Get the associated Location object
+				Location locObject = location.getLocation();
+				System.out.print("(" + locObject.getX() + "," + locObject.getY() + ")" + "=" + location.getAbbreviation());
+				if(i != (locations.length - 1)) {
+					System.out.print(", ");
+				}
+				// Space out the locations across a few lines
+				if(i % 10 == 0 && i != 0) {
+					System.out.println();
+				}
+			}
+			// Print the weapons used in the game
+			System.out.println("\n\nWeapons:");
+			WeaponType[] weapons = WeaponType.values();
+			for(int i = 0; i < weapons.length; i++) {
+				System.out.print(weapons[i].getWeapon());
+				if(i != (weapons.length - 1)) {
+					System.out.print(", ");
+				}
+			}
+			System.out.println("\n\nCurrent Clueless board:");
+			System.out.println("---------------------------------------------------------------------------------" 
+					+ "---------------------------------------------");
 			for(int row = 0; row < BOARD_HEIGHT; row++) {
 				for(int col = 0; col < BOARD_WIDTH; col++) {
 					BoardLocationEntity entity = board[row][col];
@@ -343,9 +382,11 @@ public class ClientConnection {
 					// Print the abbreviation for the Room, Hallway, or InvalidLocation
 					// If it's an InvalidLocation, don't print a label for it
 					if(entity.getAbbreviation().startsWith("IL")) {
-						System.out.print(String.format("%10s", " | "));
+						System.out.print(String.format("%25s", " | "));
+					} else if(entity instanceof Hallway){
+						System.out.print(String.format("%25s", "Hallway" + " (" + row + "," + col + ") | "));
 					} else {
-						System.out.print(String.format("%10s", entity.getAbbreviation() + " | "));
+						System.out.print(String.format("%25s", entity.getName() + " (" + row + "," + col + ") | "));
 					}
 				}
 				// Same "row", new line (so we can print the occupants of a cell)
@@ -369,26 +410,21 @@ public class ClientConnection {
 							}
 						}
 						// Print the Room's occupants
-						System.out.print(String.format("%10s", allOccupants + " | "));
+						System.out.print(String.format("%25s", allOccupants + " | "));
 					} else if(entity instanceof Hallway) {
 						// If this location is a Hallway and it's occupied, print the occupant's abbreviation
 						if(((Hallway) entity).isOccupied()) {
-							System.out.print(String.format("%10s", ((Hallway) entity).getPlayer().getAbbreviation() + " | "));
+							System.out.print(String.format("%25s", ((Hallway) entity).getPlayer().getAbbreviation() + " | "));
 						} else {
-							System.out.print(String.format("%10s", " | "));
+							System.out.print(String.format("%25s", " | "));
 						}
 					} else {
 						// Print an empty section
-						System.out.print(String.format("%10s", " | "));
+						System.out.print(String.format("%25s", " | "));
 					}
 				}
-				System.out.println("\n---------------------------------------------------");
-			}
-			
-			System.out.println("Your current hand:");
-			// Display the player's hand to them
-			for(Card card : currentHand) {
-				System.out.println(card.toString());
+				System.out.println("\n---------------------------------------------------------------------------------" 
+						+ "---------------------------------------------");
 			}
 		}	
 	}

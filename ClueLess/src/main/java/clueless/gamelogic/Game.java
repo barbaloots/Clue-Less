@@ -33,6 +33,8 @@ public class Game {
 	private ArrayList<WeaponCard> weaponCards;
 	private ArrayList<ConnectionHandler> connections;
 	private ArrayList<Player> players;
+	// Testing out a currentSuggestion variable to keep track of things
+    private String[] currentSuggestion;
 	// Board height
 	private static final int BOARD_HEIGHT = 5;
 	// Board width
@@ -41,6 +43,10 @@ public class Game {
 	private static final String INVALID_STR = "INVALID";
 	// Used to indicate that a given BoardLocationEntity should be of type Hallway
 	private static final String HALLWAY_STR = "HALLWAY";
+	// Used by a player to indicate that they wish to end their turn
+	private static final String DONE_STR = "Done";
+	// Used by the game to indicate to players that another player has ended their turn
+	private static final String END_TURN_STR = "End turn.";
 
 	/**
 	 * Constructor. Create the fields necessary to be encapsulated by a Game object.
@@ -133,7 +139,7 @@ public class Game {
 
 		// Make sure each player has an even number of cards (as even as possible)
 		for(Player player : players) {
-			logger.info(player.getCharacterName() + " has " + player.getCurrentHand().size() + " cards.");
+			logger.debug(player.getCharacterName() + " has " + player.getCurrentHand().size() + " cards.");
 		}
 	}
 
@@ -223,9 +229,8 @@ public class Game {
 	 */
 	private void printBoard() {
 		System.out.println("\nCURRENT CLUELESS BOARD:");
-		System.out.println("Rooms are two letters in length and start with 'R'");
-		System.out.println("Hallways are of the format Room 1, Room 2, 'H'");
-		System.out.println("---------------------------------------------------");
+		System.out.println("---------------------------------------------------------------------------------" 
+							+ "---------------------------------------------");
 		for(int row = 0; row < BOARD_HEIGHT; row++) {
 			for(int col = 0; col < BOARD_WIDTH; col++) {
 				BoardLocationEntity entity = board[row][col];
@@ -235,9 +240,11 @@ public class Game {
 				// Print the abbreviation for the Room, Hallway, or InvalidLocation
 				// If it's an InvalidLocation, don't print a label for it
 				if(entity.getAbbreviation().startsWith("IL")) {
-					System.out.print(String.format("%10s", " | "));
+					System.out.print(String.format("%25s", " | "));
+				} else if(entity instanceof Hallway){
+					System.out.print(String.format("%25s", "Hallway" + " (" + row + "," + col + ") | "));
 				} else {
-					System.out.print(String.format("%10s", entity.getAbbreviation() + " | "));
+					System.out.print(String.format("%25s", entity.getName() + " (" + row + "," + col + ") | "));
 				}
 			}
 			// Same "row", new line (so we can print the occupants of a cell)
@@ -261,20 +268,21 @@ public class Game {
 						}
 					}
 					// Print the Room's occupants
-					System.out.print(String.format("%10s", allOccupants + " | "));
+					System.out.print(String.format("%25s", allOccupants + " | "));
 				} else if(entity instanceof Hallway) {
 					// If this location is a Hallway and it's occupied, print the occupant's abbreviation
 					if(((Hallway) entity).isOccupied()) {
-						System.out.print(String.format("%10s", ((Hallway) entity).getPlayer().getAbbreviation() + " | "));
+						System.out.print(String.format("%25s", ((Hallway) entity).getPlayer().getAbbreviation() + " | "));
 					} else {
-						System.out.print(String.format("%10s", " | "));
+						System.out.print(String.format("%25s", " | "));
 					}
 				} else {
 					// Print an empty section
-					System.out.print(String.format("%10s", " | "));
+					System.out.print(String.format("%25s", " | "));
 				}
 			}
-			System.out.println("\n---------------------------------------------------");
+			System.out.println("\n---------------------------------------------------------------------------------" 
+							+ "---------------------------------------------");
 		}
 	}
 
@@ -293,16 +301,30 @@ public class Game {
 	 * @param move the move to validate (move, accusation, suggestion, etc.)
 	 * @return whether the move is valid
 	 */
-	public boolean validateMove(Player player, String move) {		
+	public boolean validateMove(Player player, String move) {
+		// TODO:
 		// TODO: Once a move is deemed to be valid, update the master board
-                
-               if(!validateInput(move)) {
-                  //If failed, don't need to broadcast as it was just a user typo
-                  return false;
-               }else{
-		// Broadcast the valid move to all players
-		broadcastMove(player, move);  
-               }
+		// TODO:
+		
+		// If a player enters 'Done', they've decided to end their turn
+		if(move.trim().equalsIgnoreCase(DONE_STR)) {
+			// Increment the move count for this player 
+			player.setNumMoves(player.getNumMoves() + 1);
+			// Broadcast this move
+			broadcastMove(player, END_TURN_STR);
+			// Always a valid move
+			return true;
+		}
+		
+		// This check will be useful, but for the purpose of the minimal increment, we'll ignore it
+		// TODO: Update validateInput() to include suggestions, accusations, suggestion refutations, etc.
+//		if(!validateInput(move)) {
+//			//If failed, don't need to broadcast as it was just a user typo
+//			return false;
+//		} else {
+//			// Broadcast the valid move to all players
+//			broadcastMove(player, move);  
+//		}
 
 		// Options for moving:
 		//	1. Move through one of the doors to the hallway (if it is not blocked). 
@@ -326,8 +348,8 @@ public class Game {
 			String endLoc = values[1];
 			int endLocX = Integer.parseInt(endLoc.substring(0,1));
 			int endLocY = Integer.parseInt(endLoc.substring(1,2));
-			BoardLocationEntity boardLocEntity = board[endLocX][endLocY];
-			
+			BoardLocationEntity destLocEntity = board[endLocX][endLocY];
+
 			logger.info("Received movement: " + move + " from player " + player.getCharacterName());
 			/*
 			 * First, get the current location of this player, which will be the most important info
@@ -336,49 +358,80 @@ public class Game {
 			Location currentLoc = player.getLocation();
 			int currentX = currentLoc.getX();
 			int currentY = currentLoc.getY();
-			
+			BoardLocationEntity currentLocEntity = board[currentX][currentY];
+
 			/*
 			 * If this is the player's first move, it must be to the hallway adjacent to their home square
 			 */
 			if(player.getNumMoves() == 0) {
-				// If the end location isn't a hallway, it's an invalid move
-				if(!(boardLocEntity instanceof Hallway)) {
+				// If the end location isn't a hallway and they're not currently in a hallway, it's an invalid move
+				if(!(destLocEntity instanceof Hallway) && !(currentLocEntity instanceof Hallway)) {
 					logger.info("Player " + player.getCharacterName().getCharacterName() + "'s first move attempt was not to a hallway. Invalid move.");
 					return false;
 				}
 			}
-			
+
 			/*
-			 * If the attempted move is to a hallway, the hallway cannot be occupied.
+			 * Test to see if a move goes out of bounds
 			 */
-			if(boardLocEntity instanceof Hallway) {
-				Hallway hallway = (Hallway) boardLocEntity;
+			if(endLocX > 4 || endLocX < 0 || endLocY > 4 || endLocY < 0) {
+				logger.info("Player " + player.getCharacterName().getCharacterName() + "'s move attempt went out of bounds. Invalid move.");
+				return false;
+			}
+
+			/*
+			 * Test to see if the move goes into an invalid location 
+			 */
+			if(destLocEntity instanceof InvalidLocation) {
+				logger.info("Player " + player.getCharacterName().getCharacterName() + "'s move attempt went to an invalid location. Invalid move.");
+				return false;
+			}
+
+			/*
+			 * If the attempted move is to a hallway, the hallway cannot be occupied. General hallway check logic:
+			 */
+			if(destLocEntity instanceof Hallway) {
+				Hallway hallway = (Hallway) destLocEntity;
 				// If the hallway is occupied, the player can't move there
 				if(hallway.isOccupied()) {
 					logger.info("Player " + player.getCharacterName().getCharacterName() + " attempted to move to a non-empty hallway.");
 					return false;
 				}
-				
+
 				// If the hallway isn't occupied, it must be adjacent to the player's current location
 				boolean isAdjacent = checkHallwayAdjacency(currentLoc, new Location(endLocX, endLocY));
 				if(!isAdjacent) {
 					logger.info("Player " + player.getCharacterName().getCharacterName() + " attempted to move to a non-adjacent hallway.");
 					return false;
+				} else {
+					// If none of the previous edge cases are hit, then the move into the hallway is valid and the turn will complete
+					// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
+
+					player.setNumMoves(player.getNumMoves() + 1);
+
+					// Because the valid move was made, send appropriate prompts to players
+					// sendPlayersPrompts(false, null, player);
+					return false;
 				}
 			}
 
-			// TODO: Still need much more logic here...
-
 			/*
-			 * If we've gotten here, the move is valid and we must update the local "master" board,
+			 * If we've gotten here, the move will have taken the player to a room and we must update the local "master" board,
 			 * as well as notify all of the client's about he valid move.
 			 */
-			
+
 			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
+
 			player.setNumMoves(player.getNumMoves() + 1);
 			
+			// Broadcast the move so each client can update their boards
+			broadcastNewLocation(player, destLocEntity);
+
 			// Because the valid move was made, send appropriate prompts to players
-			sendPlayersPrompts(false, null, player);
+			// The only issue I have with sendPlayersPrompts is that it should only be able to accept suggestions if the player moves into a room
+			// sendPlayersPrompts(false, null, player);
+
+			return true;
 		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -390,15 +443,20 @@ public class Game {
 			logger.info("character: " + character);
 			logger.info("room: " + room);
 			logger.info("weapon: " + weapon);
-			
+
 			boolean correctAccusation = this.gameSolution.checkAccusation(character, weapon, room);
 			if(!correctAccusation) {
 				/*
 				 * TODO: add logic to the ConnectionHandler class for eliminating this player if the accusation is false.
 				 * This will involve the TurnEnforcement.eliminatePlayer() method
-				 */	
+				 */
+				// sendPlayersPrompts(false, null, player);
+				return false;
+			} else {
+				// sendPlayersPrompts(false, null, player);
+				return true;
 			}
-			sendPlayersPrompts(false, null, player);
+			//sendPlayersPrompts(false, null, player);
 		} else if(move.startsWith(Move.SUGGEST_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -411,7 +469,33 @@ public class Game {
 			logger.info("Room: " + room);
 			logger.info("Weapon: " + weapon);
 			
-			sendPlayersPrompts(true, "Character: " + character + " Room: " + room + " Weapon: " + weapon, player);
+			// The character who was suggested must be moved to the room that was suggested
+			// Find the BoardLocationEntity on the board that corresponds to this room
+			BoardLocationEntity suggestedRoomEntity = null;
+			for(int row = 0; row < BOARD_HEIGHT; row++) {
+				for(int col = 0; col < BOARD_WIDTH; col++) {
+					BoardLocationEntity entity = board[row][col];
+					if(entity.getAbbreviation().equals(room)) {
+						suggestedRoomEntity = entity;
+						break;
+					}
+				}
+			}
+			
+			// If we didn't find the room, there was a typo in the input
+			if(suggestedRoomEntity == null) {
+				return false;
+			}
+			
+			// Broadcast the new location so clients can update their boards
+			broadcastNewLocation(character, suggestedRoomEntity);
+
+			//if statement that says: if player.getRoom().toString().equals(room)): Do the following
+			currentSuggestion[0] = character;
+			currentSuggestion[1] = room;
+			currentSuggestion[2] = weapon;
+			// sendPlayersPrompts(true, "Character: " + character + " Room: " + room + " Weapon: " + weapon, player);
+			return true;
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -419,17 +503,29 @@ public class Game {
 
 			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
 			logger.info("Card used to disprove: " + card);
-			
+			/*
+			 * Compare what is typed with the currentSuggestion array. 
+			 * If the input string matches any of the entries, clear out currentSuggestion and return true
+			 */
+			if(card.equals(currentSuggestion[0]) || card.equals(currentSuggestion[1]) || card.equals(currentSuggestion[2])) {
+				currentSuggestion[0] = "";
+				currentSuggestion[1] = "";
+				currentSuggestion[2] = "";
+				return true;
+			} else {
+				return false;
+			}
 			// TODO: Logic for handling the attempts to disprove the suggestion
 			// NOTE: We may not want to use this method for disproving suggestions
-			sendPlayersPrompts(false, null, player);
+			//sendPlayersPrompts(false, null, player);  <- not sure we need this
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
+			return false;
 		}
 
 		// If the logic falls through to here, we can consider the move to be valid
-		logger.info(player.getCharacterName() + " made move " + move.toString());
-		return true;
+		//logger.info(player.getCharacterName() + " made move " + move.toString());
+		//return "TRUE";
 	}
 
 	/**
@@ -446,9 +542,10 @@ public class Game {
 		int xDiff = locTwo.getX() - locOne.getX();
 		int yDiff = locTwo.getY() - locTwo.getY();
 		int distance = (int) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+		logger.info("Calculated a distance of " + distance + " between " + locOne.toString() + " and " + locTwo.toString());
 		return distance == 1;
 	}
-	
+
 	/**
 	 * Send appropriate prompts to each player based on whose turn it currently is
 	 * and what move was just made.
@@ -460,7 +557,7 @@ public class Game {
 	public void sendPlayersPrompts(boolean suggestionMade, String suggestedValues, Player player) {
 		int currentPlayer = TurnEnforcement.getCurrentPlayer();
 		String justMovedCharacter = player.getCharacterName().getCharacterName();
-		
+
 		/*
 		 * Add a special case for handling suggestions because that will require input from each
 		 * active user.
@@ -501,19 +598,53 @@ public class Game {
 			connection.sendMessage(player.getCharacterName().toString() + " made move " + move);
 		}
 	}
-        
-        public boolean validateInput (String move){
-               //Valid input to ensure string is valid using regular expression
-               String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
-               Pattern a = Pattern.compile(regExpPattern);
-               Matcher matcher = a.matcher(move);
-                  if (matcher.find( )) {
-                     return true;
-                  }else {
-                     logger.info("Move " + move + " failed regexp match " + a);
-                     return false;
-                  }           
-        }                
+	
+	/**
+	 * Broadcast a new location so each client can update their board.
+	 * 
+	 * @param player
+	 * @param newLocation
+	 */
+	public void broadcastNewLocation(Player player, BoardLocationEntity newLocation) {
+		Location newLoc = newLocation.getLocation();
+		// Broadcast the move to each Player by interating over each ConnectionHandler we have
+		for(ConnectionHandler connection : connections) {
+			connection.sendMessage("NL" + Move.MOVE_SEP + player.getAbbreviation() + Move.MOVE_SEP + newLoc.getX() + newLoc.getY());
+		}
+	}
+	
+	/**
+	 * Broadcast a new location so each client can update their board.
+	 * 
+	 * @param characterAbbrev
+	 * @param newLocation
+	 */
+	public void broadcastNewLocation(String characterAbbrev, BoardLocationEntity newLocation) {
+		Location newLoc = newLocation.getLocation();
+		// Broadcast the move to each Player by interating over each ConnectionHandler we have
+		for(ConnectionHandler connection : connections) {
+			connection.sendMessage("NL" + Move.MOVE_SEP + characterAbbrev + Move.MOVE_SEP + newLoc.getX() + newLoc.getY());
+		}
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param move
+	 * @return
+	 */
+	public boolean validateInput(String move) {
+		//Valid input to ensure string is valid using regular expression
+		String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$";
+		Pattern a = Pattern.compile(regExpPattern);
+		Matcher matcher = a.matcher(move);
+		if (matcher.find()) {
+			return true;
+		} else {
+			logger.info("Move " + move + " failed regexp match " + a);
+			return false;
+		}           
+	}                
 
 	public boolean isActive() {
 		return active;
