@@ -1,7 +1,5 @@
 package clueless.ui;
 
-import javax.swing.JOptionPane;
-
 /**
  * Just a placeholder for now.
  * 
@@ -9,6 +7,6 @@ import javax.swing.JOptionPane;
  */
 public class CluelessUI {
    public static void main(String[] args) {
-      JOptionPane.showMessageDialog(null, "Clueless");
+	   HomeScreen start = new HomeScreen();
    }
 }
