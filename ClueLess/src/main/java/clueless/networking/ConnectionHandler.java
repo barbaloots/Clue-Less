@@ -64,7 +64,7 @@ public class ConnectionHandler implements Runnable {
 		this.sendClientCards();
 		logger.info("Creating ClientConnectionHandler for Player " + playerCount + "...");
 	}
-	
+
 	/**
 	 * Configure log4j.
 	 */
@@ -80,7 +80,7 @@ public class ConnectionHandler implements Runnable {
 	public void sendMessage(String message) {
 		serverOut.println(message);
 	}
-	
+
 	/**
 	 * Send a client the cards they've been dealt.
 	 */
@@ -123,7 +123,7 @@ public class ConnectionHandler implements Runnable {
 				}
 			}
 		}
-		
+
 		String clientInput = null;
 
 		// Listen indefinitely for input from clients
@@ -151,7 +151,7 @@ public class ConnectionHandler implements Runnable {
 					serverOut.println("It's currently Player " + currentPlayer + "'s turn. Please wait.");
 					continue;
 				}
-				
+
 				/*
 				 * Need this special case for handling accusations that might be false.
 				 * If validateMove() returns false for an accusation, the player is eliminated.
@@ -161,7 +161,7 @@ public class ConnectionHandler implements Runnable {
 					if(game.validateMove(player, clientInput)) {
 						logger.info("Player " + player.getCharacterName().getCharacterName() + " has made a correct accusation and wins the game.");
 						// Send a game over message to all players
-						this.game.broadcastMove(player, "GAMEOVER");
+						this.game.broadcastMove(player, "Correction Accusation: " + game.getGameSolution().toString());
 						// Kill the server (i.e., game over)
 						System.exit(0);
 					} else {
@@ -172,7 +172,7 @@ public class ConnectionHandler implements Runnable {
 						TurnEnforcement.turnMade();
 					}
 				}
-				
+
 				// If we get here, we can process their turn, check it for validity, etc.
 				// For now, assume all moves given are valid.
 				if(!game.validateMove(player, clientInput)) {
@@ -181,20 +181,24 @@ public class ConnectionHandler implements Runnable {
 					continue;
 				}
 
-				// Inform the TurnEnforcement module that a turn has been taken
-				TurnEnforcement.turnMade();
+				// Once a suggestion is made or the client decides to end their turn, the turn is over
+				if(clientInput.startsWith(Move.SUGGEST_STR) || clientInput.equals("Done")) {
+					// Inform the TurnEnforcement module that a turn has been taken
+					TurnEnforcement.turnMade();
+				}
+				game.sendPlayersPrompts(false, null, player);
 
 				logger.info("Received a move from Player " + playerNumber + "!");
-				serverOut.println("Player " + playerNumber + ", your move has been received.");
+				// serverOut.println("Player " + playerNumber + ", your move has been received.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		TurnEnforcement.eliminatePlayer(playerNumber);
 		System.out.println("Player " + playerNumber + " has disconnected from the game.");
 	}
-	
+
 	/**
 	 * Helpful getter for determining what prompts to send players.
 	 * 
@@ -203,7 +207,7 @@ public class ConnectionHandler implements Runnable {
 	public Player getPlayer() {
 		return player;
 	}
-	
+
 	/**
 	 * Another helpful getter for determining what prompts to send players.
 	 * 

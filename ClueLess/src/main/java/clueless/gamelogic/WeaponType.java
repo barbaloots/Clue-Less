@@ -9,7 +9,7 @@ package clueless.gamelogic;
  */
 public enum WeaponType {
 	ROPE("ROPE"),
-	LEAD_PIPE("LEADPIPE"),
+	LEADPIPE("LEADPIPE"),
 	KNIFE("KNIFE"),
 	WRENCH("WRENCH"),
 	CANDLESTICK("CANDLESTICK"),

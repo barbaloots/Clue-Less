@@ -2,6 +2,7 @@ package clueless.gamelogic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -33,8 +34,6 @@ public class Game {
 	private ArrayList<WeaponCard> weaponCards;
 	private ArrayList<ConnectionHandler> connections;
 	private ArrayList<Player> players;
-	// Testing out a currentSuggestion variable to keep track of things
-    private String[] currentSuggestion;
 	// Board height
 	private static final int BOARD_HEIGHT = 5;
 	// Board width
@@ -130,16 +129,13 @@ public class Game {
 
 		// Shuffle the remaining cards
 		Collections.shuffle(remainingCards);
-
-		// Deal the cards to the players
-		int numPlayers = players.size();
 		for(int i = 0; i < remainingCards.size(); i++) {
 			players.get(i % numPlayers).getCurrentHand().add(remainingCards.get(i));
 		}
 
 		// Make sure each player has an even number of cards (as even as possible)
 		for(Player player : players) {
-			logger.debug(player.getCharacterName() + " has " + player.getCurrentHand().size() + " cards.");
+			logger.info(player.getCharacterName() + " has " + player.getCurrentHand().size() + " cards.");
 		}
 	}
 
@@ -302,10 +298,6 @@ public class Game {
 	 * @return whether the move is valid
 	 */
 	public boolean validateMove(Player player, String move) {
-		// TODO:
-		// TODO: Once a move is deemed to be valid, update the master board
-		// TODO:
-		
 		// If a player enters 'Done', they've decided to end their turn
 		if(move.trim().equalsIgnoreCase(DONE_STR)) {
 			// Increment the move count for this player 
@@ -316,15 +308,11 @@ public class Game {
 			return true;
 		}
 		
-		// This check will be useful, but for the purpose of the minimal increment, we'll ignore it
-		// TODO: Update validateInput() to include suggestions, accusations, suggestion refutations, etc.
-//		if(!validateInput(move)) {
-//			//If failed, don't need to broadcast as it was just a user typo
-//			return false;
-//		} else {
-//			// Broadcast the valid move to all players
-//			broadcastMove(player, move);  
-//		}
+		// Verify that the input is of the expected format
+		if(!validateInput(move)) {
+			// If it fails, don't need to broadcast as it was just a user typo
+			return false;
+		}
 
 		// Options for moving:
 		//	1. Move through one of the doors to the hallway (if it is not blocked). 
@@ -348,7 +336,11 @@ public class Game {
 			String endLoc = values[1];
 			int endLocX = Integer.parseInt(endLoc.substring(0,1));
 			int endLocY = Integer.parseInt(endLoc.substring(1,2));
+			logger.info("Move: " + move);
+			logger.info("endLocX: " + endLocX);
+			logger.info("endLocY: " + endLocY);
 			BoardLocationEntity destLocEntity = board[endLocX][endLocY];
+			logger.info("destLocEntity: " + destLocEntity.getName());
 
 			logger.info("Received movement: " + move + " from player " + player.getCharacterName());
 			/*
@@ -415,48 +407,31 @@ public class Game {
 				}
 			}
 
-			/*
-			 * If we've gotten here, the move will have taken the player to a room and we must update the local "master" board,
-			 * as well as notify all of the client's about he valid move.
-			 */
-
-			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
-
+			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced
 			player.setNumMoves(player.getNumMoves() + 1);
 			
 			// Broadcast the move so each client can update their boards
 			broadcastNewLocation(player, destLocEntity);
 
-			// Because the valid move was made, send appropriate prompts to players
-			// The only issue I have with sendPlayersPrompts is that it should only be able to accept suggestions if the player moves into a room
-			// sendPlayersPrompts(false, null, player);
-
 			return true;
 		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
-			String character = values[1];
-			String room = values[2];
-			String weapon = values[3];
+			String accusationCharacter = values[1];
+			String accusationRoom = values[2];
+			String accusationWeapon = values[3];
 
 			logger.info("Received accusation: " + move + " from player " + player.getCharacterName());
-			logger.info("character: " + character);
-			logger.info("room: " + room);
-			logger.info("weapon: " + weapon);
-
-			boolean correctAccusation = this.gameSolution.checkAccusation(character, weapon, room);
-			if(!correctAccusation) {
-				/*
-				 * TODO: add logic to the ConnectionHandler class for eliminating this player if the accusation is false.
-				 * This will involve the TurnEnforcement.eliminatePlayer() method
-				 */
-				// sendPlayersPrompts(false, null, player);
-				return false;
-			} else {
-				// sendPlayersPrompts(false, null, player);
+			
+			// Check the accuracy of the accusation
+			String gameSolutionChar = gameSolution.getCharacterName().toString();
+			String gameSolutionRoom = gameSolution.getRoomName().getRoomName();
+			String gameSolutionWeap = gameSolution.getWeaponType().getWeapon();
+			if(gameSolutionChar.equals(accusationCharacter) && gameSolutionRoom.equals(accusationRoom) && gameSolutionWeap.equals(accusationWeapon)) {
 				return true;
+			} else {
+				return false;
 			}
-			//sendPlayersPrompts(false, null, player);
 		} else if(move.startsWith(Move.SUGGEST_STR)) {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
@@ -475,7 +450,7 @@ public class Game {
 			for(int row = 0; row < BOARD_HEIGHT; row++) {
 				for(int col = 0; col < BOARD_WIDTH; col++) {
 					BoardLocationEntity entity = board[row][col];
-					if(entity.getAbbreviation().equals(room)) {
+					if(entity.getName().equals(room)) {
 						suggestedRoomEntity = entity;
 						break;
 					}
@@ -487,14 +462,8 @@ public class Game {
 				return false;
 			}
 			
-			// Broadcast the new location so clients can update their boards
+			// If a roadcast the new location so clients can update their boards
 			broadcastNewLocation(character, suggestedRoomEntity);
-
-			//if statement that says: if player.getRoom().toString().equals(room)): Do the following
-			currentSuggestion[0] = character;
-			currentSuggestion[1] = room;
-			currentSuggestion[2] = weapon;
-			// sendPlayersPrompts(true, "Character: " + character + " Room: " + room + " Weapon: " + weapon, player);
 			return true;
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
 			// Split the move string by the separator and extract the values
@@ -503,29 +472,13 @@ public class Game {
 
 			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
 			logger.info("Card used to disprove: " + card);
-			/*
-			 * Compare what is typed with the currentSuggestion array. 
-			 * If the input string matches any of the entries, clear out currentSuggestion and return true
-			 */
-			if(card.equals(currentSuggestion[0]) || card.equals(currentSuggestion[1]) || card.equals(currentSuggestion[2])) {
-				currentSuggestion[0] = "";
-				currentSuggestion[1] = "";
-				currentSuggestion[2] = "";
-				return true;
-			} else {
-				return false;
-			}
+
 			// TODO: Logic for handling the attempts to disprove the suggestion
 			// NOTE: We may not want to use this method for disproving suggestions
-			//sendPlayersPrompts(false, null, player);  <- not sure we need this
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 			return false;
 		}
-
-		// If the logic falls through to here, we can consider the move to be valid
-		//logger.info(player.getCharacterName() + " made move " + move.toString());
-		//return "TRUE";
 	}
 
 	/**
@@ -575,10 +528,11 @@ public class Game {
 				String characterName = connection.getPlayer().getCharacterName().getCharacterName();
 				if(currentPlayer == playerNumber) {
 					connection.sendMessage(characterName + ", it's your turn.");
-					connection.sendMessage("To move, use the syntax MV_XY");
-					connection.sendMessage("To make a suggestion, use the syntax AS_<Character>_<Room>_<Weapon>");
-					connection.sendMessage("To make an accusation, use the syntax AA_<Character>_<Room>_<Weapon>");
-					connection.sendMessage("To end your turn, enter 'Done'");
+					connection.sendMessage("To move to a square, use the syntax MV_XY, where XY is a set of (X,Y) coordinates.");
+					connection.sendMessage("To make a suggestion, use the syntax AS_<Character>_<Room>_<Weapon>.");
+					connection.sendMessage("To make an accusation, use the syntax AA_<Character>_<Room>_<Weapon>.");
+					connection.sendMessage("To end your turn, enter 'Done'.");
+					connection.sendMessage(">");
 				} else {
 					connection.sendMessage("Player " + currentPlayer + " is currently making a turn.");
 				}
@@ -600,17 +554,73 @@ public class Game {
 	}
 	
 	/**
-	 * Broadcast a new location so each client can update their board.
+	 * Broadcast a new location so each client can update their board. Update the master board (located in the 
+	 * server via the Game's board[][] variable) with the new information.
 	 * 
 	 * @param player
 	 * @param newLocation
 	 */
 	public void broadcastNewLocation(Player player, BoardLocationEntity newLocation) {
 		Location newLoc = newLocation.getLocation();
+		int newX = newLoc.getX();
+		int newY = newLoc.getY();
+		String playerAbbrev = player.getAbbreviation();
 		// Broadcast the move to each Player by interating over each ConnectionHandler we have
 		for(ConnectionHandler connection : connections) {
-			connection.sendMessage("NL" + Move.MOVE_SEP + player.getAbbreviation() + Move.MOVE_SEP + newLoc.getX() + newLoc.getY());
+			connection.sendMessage("NL" + Move.MOVE_SEP + player.getAbbreviation() + Move.MOVE_SEP + newX + newY);
 		}
+		
+		// Update the master board (i.e., the Game class' board[][])
+		// Search the board for this abbreviation and remove it from the now obsolete location
+		logger.info("Updating the master board with the new location");
+		for(int x = 0; x < BOARD_WIDTH; x++) {
+			for(int y = 0; y < BOARD_HEIGHT; y++) {
+				BoardLocationEntity boardLocEntity = board[x][y];
+				if(boardLocEntity instanceof Hallway) {
+					Hallway hallway = (Hallway) boardLocEntity;
+					if(hallway.isOccupied()) {
+						// If we found their old location to be a hallway, remove them from that hallway
+						if(hallway.getPlayer().getAbbreviation().equals(playerAbbrev)) {
+							// Mark the hallway as not occupied
+							hallway.setOccupied(false);
+							// Mark the current player in the hallway as null
+							hallway.setPlayer(null);
+						}
+					}
+				} else if(boardLocEntity instanceof Room) {
+					Room room = (Room) boardLocEntity;
+					ArrayList<Player> currentPlayers = room.getCurrentPlayers();
+					// Create an iterator for the ArrayList to avoid ConcurrentModificationExceptions in 
+					// the event that we need to remove an element
+					Iterator<Player> playerIterator = currentPlayers.iterator();
+					while(playerIterator.hasNext()) {
+						// Get the next Player from the iterator
+						Player nextPlayer = playerIterator.next();
+						// If the abbreviation matches that of the player who's getting a new location
+						if(nextPlayer.getAbbreviation().equals(playerAbbrev)) {
+							// Remove the player from this location
+							playerIterator.remove();
+						}
+					}
+				}
+			}
+		}
+
+		// Put the player at the new location on the local board (i.e., the board this client can actually view)
+		BoardLocationEntity boardLocEntity = board[newX][newY];
+		if(boardLocEntity instanceof Hallway) {
+			Hallway hallway = (Hallway) boardLocEntity;
+			// Mark the hallway as occupied
+			hallway.setOccupied(true);
+			// Set the player (this is a dummy player just to populate/display/maintain the board properly)
+			hallway.setPlayer(new Player(playerAbbrev));
+		} else if(boardLocEntity instanceof Room) {
+			Room room = (Room) boardLocEntity;
+			// Add the player to the room's list of occupants
+			room.getCurrentPlayers().add(new Player(playerAbbrev));
+		}
+
+		printBoard();
 	}
 	
 	/**
@@ -621,21 +631,75 @@ public class Game {
 	 */
 	public void broadcastNewLocation(String characterAbbrev, BoardLocationEntity newLocation) {
 		Location newLoc = newLocation.getLocation();
+		int newX = newLoc.getX();
+		int newY = newLoc.getY();
 		// Broadcast the move to each Player by interating over each ConnectionHandler we have
 		for(ConnectionHandler connection : connections) {
-			connection.sendMessage("NL" + Move.MOVE_SEP + characterAbbrev + Move.MOVE_SEP + newLoc.getX() + newLoc.getY());
+			connection.sendMessage("NL" + Move.MOVE_SEP + characterAbbrev + Move.MOVE_SEP + newX + newY);
 		}
+
+		// Update the master board (i.e., the Game class' board[][])
+		// Search the board for this abbreviation and remove it from the now obsolete location
+		logger.info("Updating the master board with the new location");
+		for(int x = 0; x < BOARD_WIDTH; x++) {
+			for(int y = 0; y < BOARD_HEIGHT; y++) {
+				BoardLocationEntity boardLocEntity = board[x][y];
+				if(boardLocEntity instanceof Hallway) {
+					Hallway hallway = (Hallway) boardLocEntity;
+					if(hallway.isOccupied()) {
+						// If we found their old location to be a hallway, remove them from that hallway
+						if(hallway.getPlayer().getAbbreviation().equals(characterAbbrev)) {
+							// Mark the hallway as not occupied
+							hallway.setOccupied(false);
+							// Mark the current player in the hallway as null
+							hallway.setPlayer(null);
+						}
+					}
+				} else if(boardLocEntity instanceof Room) {
+					Room room = (Room) boardLocEntity;
+					ArrayList<Player> currentPlayers = room.getCurrentPlayers();
+					// Create an iterator for the ArrayList to avoid ConcurrentModificationExceptions in 
+					// the event that we need to remove an element
+					Iterator<Player> playerIterator = currentPlayers.iterator();
+					while(playerIterator.hasNext()) {
+						// Get the next Player from the iterator
+						Player nextPlayer = playerIterator.next();
+						// If the abbreviation matches that of the player who's getting a new location
+						if(nextPlayer.getAbbreviation().equals(characterAbbrev)) {
+							// Remove the player from this location
+							playerIterator.remove();
+						}
+					}
+				}
+			}
+		}
+
+		// Put the player at the new location on the local board (i.e., the board this client can actually view)
+		BoardLocationEntity boardLocEntity = board[newX][newY];
+		if(boardLocEntity instanceof Hallway) {
+			Hallway hallway = (Hallway) boardLocEntity;
+			// Mark the hallway as occupied
+			hallway.setOccupied(true);
+			// Set the player (this is a dummy player just to populate/display/maintain the board properly)
+			hallway.setPlayer(new Player(characterAbbrev));
+		} else if(boardLocEntity instanceof Room) {
+			Room room = (Room) boardLocEntity;
+			// Add the player to the room's list of occupants
+			room.getCurrentPlayers().add(new Player(characterAbbrev));
+		}
+
+		printBoard();
 	}
 
 	/**
+	 * Validate the user input to ensure it matches the expected format.
 	 * 
-	 * 
-	 * @param move
-	 * @return
+	 * @param move the move entered by the player
+	 * @return whether the move matches the regex
 	 */
 	public boolean validateInput(String move) {
 		//Valid input to ensure string is valid using regular expression
-		String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$|^[A-Za-z]{2}(_[A-Za-z]{4,10}){1,3}|(?i)DONE(?-i)";
+		String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$|^[A-Za-z]{2}(_[A-Za-z]{4,10}){1,3}|(?i)DONE(?-i)";;
 		Pattern a = Pattern.compile(regExpPattern);
 		Matcher matcher = a.matcher(move);
 		if (matcher.find()) {
@@ -672,5 +736,9 @@ public class Game {
 
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
+	}
+	
+	public GameSolution getGameSolution() {
+		return gameSolution;
 	}
 }

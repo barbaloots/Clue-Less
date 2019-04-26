@@ -80,7 +80,7 @@ public class GameSolution extends CluelessTriple {
 	 * @return whether the accusation matches the true game solution
 	 */
 	public boolean checkAccusation(String character, String weapon, String room) {
-		if(!character.equals(this.getCharacterName().getCharacterName())) {
+		if(!character.equals(this.getCharacterName())) {
 			return false;
 		}
 		if(!weapon.equals(this.getWeaponType().getWeapon())) {

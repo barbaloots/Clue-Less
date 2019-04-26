@@ -15,9 +15,11 @@ import java.util.Scanner;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import clueless.gamelogic.AbbreviationMap;
 import clueless.gamelogic.BoardLocationEntity;
 import clueless.gamelogic.Card;
 import clueless.gamelogic.CharacterCard;
+import clueless.gamelogic.CharacterEnum;
 import clueless.gamelogic.Hallway;
 import clueless.gamelogic.InvalidLocation;
 import clueless.gamelogic.Location;
@@ -96,7 +98,6 @@ public class ClientConnection {
 	 */
 	static class ServerInput implements Runnable {
 		private static final Logger logger = Logger.getLogger(ServerInput.class);
-		private static BufferedReader serverIn;
 		private static final int BOARD_HEIGHT = 5;
 		private static final int BOARD_WIDTH = 5;
 		private static final String SERVER_MSG_SEP = "_";
@@ -110,6 +111,7 @@ public class ClientConnection {
 		private Notebook notebook = null;
 		private String characterName = null;
 		private ArrayList<Card> currentHand = null;
+		private BufferedReader serverIn;
 		// Prefixes for info that will be sent by the server (through broadcast or a singular message)
 		private static final String CHARACTER_NAME = "CN";
 		private static final String CARD = "CARD";
@@ -183,28 +185,33 @@ public class ClientConnection {
 						System.exit(0);
 					}
 
-					System.out.println(serverInput);
+					// Don't use a new line if it's just the prompt character
+					if(serverInput.equals(">")) {
+						System.out.print(serverInput + " ");
+					} else {
+						System.out.println(serverInput);
+					}
 
 					// Strip the prefix, which tells us what kind of info we have just received from the server
 					String msgPrefix = serverInput.split(SERVER_MSG_SEP)[0];
 
 					switch(msgPrefix) {
-					case CHARACTER_NAME: {
-						handleCharacterName(serverInput);
-						break;
-					}
-					case CARD: {
-						handleCard(serverInput);
-						break;
-					}
-					case NEW_LOCATION: {
-						handleNewLocation(serverInput);
-						break;
-					}
-					case SUGGESTION: {
-						handleSuggestion(serverInput);
-						break;
-					}
+						case CHARACTER_NAME: {
+							handleCharacterName(serverInput);
+							break;
+						}
+						case CARD: {
+							handleCard(serverInput);
+							break;
+						}
+						case NEW_LOCATION: {
+							handleNewLocation(serverInput);
+							break;
+						}
+						case SUGGESTION: {
+							handleSuggestion(serverInput);
+							break;
+						}
 					}
 				}
 			} catch (IOException e) {
@@ -331,7 +338,10 @@ public class ClientConnection {
 		 * ensuring the board is legible when printed to the console for early debugging.
 		 */
 		private void printBoard() {
-			System.out.println("\n\n\nYour Clueless character is " + characterName);
+			if(characterName == null) {
+				return;
+			}
+			System.out.println("\n\n\nYour Clueless character is " + AbbreviationMap.getCharacterFullname(characterName));
 			System.out.println("Your current hand contains these cards:");
 			// Display the player's hand to them
 			for(int i = 0; i < currentHand.size(); i++) {
@@ -341,28 +351,8 @@ public class ClientConnection {
 					System.out.print(", ");
 				}
 			}
-			// Print the abbreviations they should use for moves
-			System.out.println("\n\nLocation abbreviations:");
-			LocationEnum[] locations = LocationEnum.values();
-			for(int i = 0; i < locations.length; i++) {
-				LocationEnum location = locations[i];
-				// Don't print invalid locations
-				if(location.name().startsWith(INVALID_STR)) {
-					continue;
-				}
-				// Get the associated Location object
-				Location locObject = location.getLocation();
-				System.out.print("(" + locObject.getX() + "," + locObject.getY() + ")" + "=" + location.getAbbreviation());
-				if(i != (locations.length - 1)) {
-					System.out.print(", ");
-				}
-				// Space out the locations across a few lines
-				if(i % 10 == 0 && i != 0) {
-					System.out.println();
-				}
-			}
 			// Print the weapons used in the game
-			System.out.println("\n\nWeapons:");
+			System.out.println("\n\nAll Clueless Weapons:");
 			WeaponType[] weapons = WeaponType.values();
 			for(int i = 0; i < weapons.length; i++) {
 				System.out.print(weapons[i].getWeapon());
@@ -370,7 +360,16 @@ public class ClientConnection {
 					System.out.print(", ");
 				}
 			}
-			System.out.println("\n\nCurrent Clueless board:");
+			// Print the characters in the game
+			System.out.print("\nAll Clueless Characters: ");
+			CharacterEnum[] characters = CharacterEnum.values();
+			for(int i = 0; i < characters.length; i++) {
+				System.out.print(characters[i].getName());
+				if(i != (characters.length - 1)) {
+					System.out.print(", ");
+				}
+			}
+			System.out.println("\nCurrent Clueless board:");
 			System.out.println("---------------------------------------------------------------------------------" 
 					+ "---------------------------------------------");
 			for(int row = 0; row < BOARD_HEIGHT; row++) {

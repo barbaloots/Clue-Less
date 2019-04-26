@@ -90,8 +90,7 @@ public abstract class CluelessTriple {
 	 */
 	@Override
 	public String toString() {
-		return "roomName=" + roomName + ",weaponType=" + weaponType + ",characterName="
-				+ characterName;
+		return "Room: " + roomName + ", Weapon: " + weaponType + ", Character: " + characterName;
 	}
 
 	/**
