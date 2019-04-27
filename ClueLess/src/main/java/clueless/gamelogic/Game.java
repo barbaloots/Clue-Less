@@ -151,6 +151,7 @@ public class Game {
 			Location location = boardLoc.getLocation();
 			String name = boardLoc.name();
 			String abbreviation = boardLoc.getAbbreviation();
+			boolean hasSecretPassage = boardLoc.hasSecretPassage();
 
 			if(name.startsWith(INVALID_STR)) {
 				// Create a new InvalidLocation object and place it on the board
@@ -162,7 +163,7 @@ public class Game {
 				board[location.getX()][location.getY()] = hallway;
 			} else {
 				// Create a new Room object and place it on the board
-				Room room = new Room(name, abbreviation, location);
+				Room room = new Room(name, abbreviation, location, hasSecretPassage);
 				board[location.getX()][location.getY()] = room;
 			}
 		}
@@ -285,6 +286,7 @@ public class Game {
 	/**
 	 * Determine if the given CharacterName can make the given move.
 	 * 
+	 * 
 	 * The String move should be in one of the following formats:
 	 * <ol>
 	 * <li>MV_ENDLOC (make a move from one location to another)</li>
@@ -310,6 +312,7 @@ public class Game {
 		
 		// Verify that the input is of the expected format
 		if(!validateInput(move)) {
+			logger.info("Move " + move + " has an invalid format");
 			// If it fails, don't need to broadcast as it was just a user typo
 			return false;
 		}
@@ -351,6 +354,24 @@ public class Game {
 			int currentX = currentLoc.getX();
 			int currentY = currentLoc.getY();
 			BoardLocationEntity currentLocEntity = board[currentX][currentY];
+			
+			/*
+			 * NOTE: If the currentLocEntity object is an instance of a Room, we can now check whether
+			 * it contains a secret passageway.
+			 * This code here is for example purposes only - will need to check whether a room contains 
+			 * a secret passageway if a player attempts to make a diagonal move from one of the corner rooms.
+			 */
+			if(currentLocEntity instanceof Room) {
+				Room room = (Room) currentLocEntity;
+				boolean hasSecretPassage = room.hasSecretPassage();
+				if(hasSecretPassage) {
+					logger.info(room.getName() + " has a secret passage");
+				} else {
+					logger.info(room.getName() + " doesn't have a secret passage");
+				}
+			} else {
+				logger.info(currentLocEntity + " is not an instance of Room");
+			}
 
 			/*
 			 * If this is the player's first move, it must be to the hallway adjacent to their home square
@@ -395,15 +416,6 @@ public class Game {
 				if(!isAdjacent) {
 					logger.info("Player " + player.getCharacterName().getCharacterName() + " attempted to move to a non-adjacent hallway.");
 					return false;
-				} else {
-					// If none of the previous edge cases are hit, then the move into the hallway is valid and the turn will complete
-					// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced.
-
-					player.setNumMoves(player.getNumMoves() + 1);
-
-					// Because the valid move was made, send appropriate prompts to players
-					// sendPlayersPrompts(false, null, player);
-					return false;
 				}
 			}
 
@@ -412,7 +424,11 @@ public class Game {
 			
 			// Broadcast the move so each client can update their boards
 			broadcastNewLocation(player, destLocEntity);
-
+			
+			// Update the Player's location
+			player.setLocation(new Location(endLocX, endLocY));
+			
+			// The move was valid
 			return true;
 		} else if(move.startsWith(Move.ACCUS_STR)) {
 			// Split the move string by the separator and extract the values
@@ -462,7 +478,7 @@ public class Game {
 				return false;
 			}
 			
-			// If a roadcast the new location so clients can update their boards
+			// Broadcast the new location of the character that was suggested so clients can update their boards
 			broadcastNewLocation(character, suggestedRoomEntity);
 			return true;
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
@@ -479,6 +495,8 @@ public class Game {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 			return false;
 		}
+		
+		return true;
 	}
 
 	/**

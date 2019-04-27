@@ -141,6 +141,7 @@ public class ClientConnection {
 				Location location = boardLoc.getLocation();
 				String name = boardLoc.name();
 				String abbreviation = boardLoc.getAbbreviation();
+				boolean hasSecretPassage = boardLoc.hasSecretPassage();
 
 				if(name.startsWith(INVALID_STR)) {
 					// Create a new InvalidLocation object and place it on the board
@@ -152,7 +153,7 @@ public class ClientConnection {
 					board[location.getX()][location.getY()] = hallway;
 				} else {
 					// Create a new Room object and place it on the board
-					Room room = new Room(name, abbreviation, location);
+					Room room = new Room(name, abbreviation, location, hasSecretPassage);
 					board[location.getX()][location.getY()] = room;
 				}
 			}
