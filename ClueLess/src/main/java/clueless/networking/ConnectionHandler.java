@@ -154,6 +154,29 @@ public class ConnectionHandler implements Runnable {
 								+ " attempting to disprove a suggestion.");
 						continue;
 					}
+					
+					// If the player is attempting to disprove a suggestion, check their card against what was suggested
+					if(clientInput.startsWith(Move.DISPROVE_SUGGEST)) {
+						String cardResponse = clientInput.split(Move.MOVE_SEP)[1];
+						if(cardResponse.equals(game.getRecentSuggestionChar())) {
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
+									cardResponse);
+							TurnEnforcement.turnOffDisproveSuggestionMode();
+						} else if(cardResponse.equals(game.getRecentSuggestionRoom())) {
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
+									cardResponse);
+							TurnEnforcement.turnOffDisproveSuggestionMode();
+						} else if(cardResponse.equals(game.getRecentSuggestionWeap())) {
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
+									cardResponse);
+							TurnEnforcement.turnOffDisproveSuggestionMode();
+						} else {
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " was unable to disprove a suggestion with " + 
+									cardResponse);
+							TurnEnforcement.disproveSuggestionFailed();
+						}
+						continue;
+					}
 				}
 
 				// Get the number of the player whose turn it currently is

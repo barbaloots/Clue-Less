@@ -34,6 +34,9 @@ public class Game {
 	private ArrayList<WeaponCard> weaponCards;
 	private ArrayList<ConnectionHandler> connections;
 	private ArrayList<Player> players;
+	private String recentSuggestionChar = null;
+	private String recentSuggestionRoom = null;
+	private String recentSuggestionWeap = null;
 	// Board height
 	private static final int BOARD_HEIGHT = 5;
 	// Board width
@@ -456,6 +459,11 @@ public class Game {
 			String room = values[2];
 			String weapon = values[3];
 
+			// Save the suggestion parameters
+			recentSuggestionChar = character;
+			recentSuggestionRoom = room;
+			recentSuggestionWeap = weapon;
+
 			logger.info("Received suggestion: " + move + " from player " + player.getCharacterName());
 			logger.info("Character: " + character);
 			logger.info("Room: " + room);
@@ -583,6 +591,16 @@ public class Game {
 		// Broadcast the move to each Player by interating over each ConnectionHandler we have
 		for(ConnectionHandler connection : connections) {
 			connection.sendMessage(player.getCharacterName().toString() + " made move " + move);
+		}
+	}
+
+	/**
+	 * Broadcast any message.
+	 */
+	public void broadcastMsg(String string) {
+		// Broadcast the given string to all clients
+		for(ConnectionHandler connection : connections) {
+			connection.sendMessage(string);
 		}
 	}
 
@@ -783,5 +801,29 @@ public class Game {
 
 	public GameSolution getGameSolution() {
 		return gameSolution;
+	}
+
+	public String getRecentSuggestionChar() {
+		return recentSuggestionChar;
+	}
+
+	public String getRecentSuggestionRoom() {
+		return recentSuggestionRoom;
+	}
+
+	public String getRecentSuggestionWeap() {
+		return recentSuggestionWeap;
+	}
+
+	public void setRecentSuggestionChar(String recentSuggestionChar) {
+		this.recentSuggestionChar = recentSuggestionChar;
+	}
+
+	public void setRecentSuggestionRoom(String recentSuggestionRoom) {
+		this.recentSuggestionRoom = recentSuggestionRoom;
+	}
+
+	public void setRecentSuggestionWeap(String recentSuggestionWeap) {
+		this.recentSuggestionWeap = recentSuggestionWeap;
 	}
 }
