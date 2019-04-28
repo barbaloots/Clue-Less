@@ -227,7 +227,7 @@ public class Game {
 	private void printBoard() {
 		System.out.println("\nCURRENT CLUELESS BOARD:");
 		System.out.println("---------------------------------------------------------------------------------" 
-							+ "---------------------------------------------");
+				+ "---------------------------------------------");
 		for(int row = 0; row < BOARD_HEIGHT; row++) {
 			for(int col = 0; col < BOARD_WIDTH; col++) {
 				BoardLocationEntity entity = board[row][col];
@@ -279,7 +279,7 @@ public class Game {
 				}
 			}
 			System.out.println("\n---------------------------------------------------------------------------------" 
-							+ "---------------------------------------------");
+					+ "---------------------------------------------");
 		}
 	}
 
@@ -309,7 +309,7 @@ public class Game {
 			// Always a valid move
 			return true;
 		}
-		
+
 		// Verify that the input is of the expected format
 		if(!validateInput(move)) {
 			logger.info("Move " + move + " has an invalid format");
@@ -354,7 +354,7 @@ public class Game {
 			int currentX = currentLoc.getX();
 			int currentY = currentLoc.getY();
 			BoardLocationEntity currentLocEntity = board[currentX][currentY];
-			
+
 			/*
 			 * NOTE: If the currentLocEntity object is an instance of a Room, we can now check whether
 			 * it contains a secret passageway.
@@ -421,13 +421,13 @@ public class Game {
 
 			// Increment the number of moves this player has made. This is necessary to ensure certain rules are enforced
 			player.setNumMoves(player.getNumMoves() + 1);
-			
+
 			// Broadcast the move so each client can update their boards
 			broadcastNewLocation(player, destLocEntity);
-			
+
 			// Update the Player's location
 			player.setLocation(new Location(endLocX, endLocY));
-			
+
 			// The move was valid
 			return true;
 		} else if(move.startsWith(Move.ACCUS_STR)) {
@@ -438,12 +438,13 @@ public class Game {
 			String accusationWeapon = values[3];
 
 			logger.info("Received accusation: " + move + " from player " + player.getCharacterName());
-			
+
 			// Check the accuracy of the accusation
 			String gameSolutionChar = gameSolution.getCharacterName().toString();
 			String gameSolutionRoom = gameSolution.getRoomName().getRoomName();
 			String gameSolutionWeap = gameSolution.getWeaponType().getWeapon();
-			if(gameSolutionChar.equals(accusationCharacter) && gameSolutionRoom.equals(accusationRoom) && gameSolutionWeap.equals(accusationWeapon)) {
+			if(gameSolutionChar.equals(accusationCharacter) && gameSolutionRoom.equals(accusationRoom) && 
+					gameSolutionWeap.equals(accusationWeapon)) {
 				return true;
 			} else {
 				return false;
@@ -459,7 +460,7 @@ public class Game {
 			logger.info("Character: " + character);
 			logger.info("Room: " + room);
 			logger.info("Weapon: " + weapon);
-			
+
 			// The character who was suggested must be moved to the room that was suggested
 			// Find the BoardLocationEntity on the board that corresponds to this room
 			BoardLocationEntity suggestedRoomEntity = null;
@@ -472,14 +473,31 @@ public class Game {
 					}
 				}
 			}
-			
+
 			// If we didn't find the room, there was a typo in the input
 			if(suggestedRoomEntity == null) {
 				return false;
 			}
-			
+
 			// Broadcast the new location of the character that was suggested so clients can update their boards
 			broadcastNewLocation(character, suggestedRoomEntity);
+
+			// Turn on "disprove suggestion" mode
+			TurnEnforcement.turnOnDisproveSuggestionMode();
+
+			// Send the static TurnEnforcement class a list of players that might need to disprove the suggestion
+			ArrayList<String> playersToDisprove = new ArrayList<>();
+			for(Player p : players) {
+				// Everyone other than the player who made the suggestion may be asked to disprove it
+				if(!p.getAbbreviation().equals(player.getAbbreviation())) {
+					playersToDisprove.add(p.getAbbreviation());
+				}
+			}
+			TurnEnforcement.setPlayersToDisprove(playersToDisprove);
+
+			// Broadcast the first player who should make a suggestion
+			broadcastDisproveSuggestion(playersToDisprove.get(0), move);
+
 			return true;
 		} else if(move.startsWith(Move.DISPROVE_SUGGEST)) {
 			// Split the move string by the separator and extract the values
@@ -488,14 +506,11 @@ public class Game {
 
 			logger.info("Received a disprove suggestion attempt " + move + " from player " + player.getCharacterName());
 			logger.info("Card used to disprove: " + card);
-
-			// TODO: Logic for handling the attempts to disprove the suggestion
-			// NOTE: We may not want to use this method for disproving suggestions
 		} else {
 			logger.error("Didn't recognize the move " + move + " from " + player.getCharacterName());
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -570,7 +585,7 @@ public class Game {
 			connection.sendMessage(player.getCharacterName().toString() + " made move " + move);
 		}
 	}
-	
+
 	/**
 	 * Broadcast a new location so each client can update their board. Update the master board (located in the 
 	 * server via the Game's board[][] variable) with the new information.
@@ -587,7 +602,7 @@ public class Game {
 		for(ConnectionHandler connection : connections) {
 			connection.sendMessage("NL" + Move.MOVE_SEP + player.getAbbreviation() + Move.MOVE_SEP + newX + newY);
 		}
-		
+
 		// Update the master board (i.e., the Game class' board[][])
 		// Search the board for this abbreviation and remove it from the now obsolete location
 		logger.info("Updating the master board with the new location");
@@ -640,7 +655,17 @@ public class Game {
 
 		printBoard();
 	}
-	
+
+	/**
+	 * Broadcast the player who should make a suggestion.
+	 */
+	public void broadcastDisproveSuggestion(String playerToDisprove, String suggestion) {
+		// Broadcast the move to each Player by interating over each ConnectionHandler we have
+		for(ConnectionHandler connection : connections) {
+			connection.sendMessage("Waiting for " + playerToDisprove + " to disprove the suggestion " + suggestion);
+		}
+	}
+
 	/**
 	 * Broadcast a new location so each client can update their board.
 	 * 
@@ -755,7 +780,7 @@ public class Game {
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
 	}
-	
+
 	public GameSolution getGameSolution() {
 		return gameSolution;
 	}

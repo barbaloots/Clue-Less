@@ -1,5 +1,7 @@
 package clueless.gamelogic;
 
+import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -18,10 +20,13 @@ import org.apache.log4j.xml.DOMConfigurator;
 public class TurnEnforcement {
 	private static final Logger logger = Logger.getLogger(TurnEnforcement.class);
 	private static boolean gameHasStarted = false;
+	private static boolean disproveSuggestionMode = false;
 	private static int numberOfPlayers = 0;
 	private static int currentTurn = 0;
 	private static final int ELIMINATED_FLAG = -1;
 	private static int[] playerArr = null;
+	private static ArrayList<String> playersToDisprove = null;
+	private static int indexExpectedToDisproveNext = 0;
 	
 	/**
 	 * Store each player number in a primitive array.
@@ -86,5 +91,57 @@ public class TurnEnforcement {
 	 */
 	public static synchronized boolean gameHasStarted() {
 		return gameHasStarted;
-	}	
+	}
+	
+	/**
+	 * Used to enforce the logic of disproving suggestions.
+	 * 
+	 * @return whether the game is in "disprove suggestion" mode
+	 */
+	public static synchronized boolean isInDisproveSuggestionMode() {
+		return disproveSuggestionMode;
+	}
+	
+	/**
+	 * Turn on "disprove suggestion" mode.
+	 */
+	public static synchronized void turnOnDisproveSuggestionMode() {
+		disproveSuggestionMode = true;
+	}
+	
+	/**
+	 * Turn off "disprove suggestion" mode.
+	 */
+	public static synchronized void turnOffDisproveSuggestionMode() {
+		disproveSuggestionMode = false;
+	}
+	
+	/**
+	 * Set the <code>ArrayList</code> of player characters who may need to disprove a suggestion that was made.
+	 */
+	public static synchronized void setPlayersToDisprove(ArrayList<String> players) {
+		playersToDisprove = players;
+		indexExpectedToDisproveNext = 0;
+	}
+	
+	/**
+	 * Tell the TurnEnforcement class that a player was unable to make a suggestion.
+	 */
+	public static synchronized void disproveSuggestionFailed() {
+		indexExpectedToDisproveNext++;
+	}
+	
+	/**
+	 * Get the character/player who is expected to disprove a suggestion next.
+	 * 
+	 * @return the name of the character/player from whom a suggestion is expected next.
+	 */
+	public static synchronized String getPlayerFromWhomDisproveSuggestionIsExpected() {
+		if(playersToDisprove != null) {
+			if(indexExpectedToDisproveNext >= 0 && indexExpectedToDisproveNext < playersToDisprove.size()) {
+				return playersToDisprove.get(indexExpectedToDisproveNext);
+			}
+		}
+		return null;
+	}
 }

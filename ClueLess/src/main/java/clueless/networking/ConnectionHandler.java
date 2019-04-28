@@ -143,6 +143,18 @@ public class ConnectionHandler implements Runnable {
 					serverOut.println("The game has not started yet. Please wait.");
 					continue;
 				}
+				
+				// If a player is expected to disprove a suggestion, make sure this is the proper player
+				if(TurnEnforcement.isInDisproveSuggestionMode()) {
+					String characterCurrentlyDisproving = TurnEnforcement.getPlayerFromWhomDisproveSuggestionIsExpected();
+					// If the game isn't currently excepting an attempt to disprove a move from this player
+					if(!characterCurrentlyDisproving.equals(getPlayer().getAbbreviation())) {
+						// Let them know it's not their turn
+						serverOut.println("A suggestion has been made, but " + characterCurrentlyDisproving + " is currently"
+								+ " attempting to disprove a suggestion.");
+						continue;
+					}
+				}
 
 				// Get the number of the player whose turn it currently is
 				int currentPlayer = TurnEnforcement.getCurrentPlayer();
@@ -182,11 +194,14 @@ public class ConnectionHandler implements Runnable {
 				}
 
 				// Once a suggestion is made or the client decides to end their turn, the turn is over
-				if(clientInput.startsWith(Move.SUGGEST_STR) || clientInput.equals("Done")) {
+				if(clientInput.equals("Done")) {
 					// Inform the TurnEnforcement module that a turn has been taken
 					TurnEnforcement.turnMade();
 				}
-				game.sendPlayersPrompts(false, null, player);
+				
+				if(!clientInput.startsWith(Move.SUGGEST_STR)) {
+					game.sendPlayersPrompts(false, null, player);
+				}
 
 				logger.info("Received a move from Player " + playerNumber + "!");
 				// serverOut.println("Player " + playerNumber + ", your move has been received.");

@@ -117,6 +117,7 @@ public class ClientConnection {
 		private static final String CARD = "CARD";
 		private static final String NEW_LOCATION = "NL";
 		private static final String SUGGESTION = "SUGG";
+		private static final String DISPROVE_SUGGESTION = "DS";
 
 		/**
 		 * Constructor.
@@ -211,6 +212,10 @@ public class ClientConnection {
 						}
 						case SUGGESTION: {
 							handleSuggestion(serverInput);
+							break;
+						}
+						case DISPROVE_SUGGESTION: {
+							// TODO: Figure out if anything should be done here
 							break;
 						}
 					}
