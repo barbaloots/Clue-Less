@@ -742,7 +742,7 @@ public class Game {
 	 */
 	public boolean validateInput(String move) {
 		//Valid input to ensure string is valid using regular expression
-		String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$|^[A-Za-z]{2}(_[A-Za-z]{4,10}){1,3}|(?i)DONE(?-i)";;
+		String regExpPattern = "^[A-Za-z]{2}_[0-9]{2}$|^[A-Za-z]{2}(_[A-Za-z]{2,10}){1,3}|(?i)DONE(?-i)";;
 		Pattern a = Pattern.compile(regExpPattern);
 		Matcher matcher = a.matcher(move);
 		if (matcher.find()) {
