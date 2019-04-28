@@ -27,7 +27,9 @@ public class TurnEnforcement {
 	private static int[] playerArr = null;
 	private static ArrayList<String> playersToDisprove = null;
 	private static int indexExpectedToDisproveNext = 0;
-	
+	private static Game game = null;
+	private static Player player = null;
+
 	/**
 	 * Store each player number in a primitive array.
 	 * 
@@ -43,7 +45,7 @@ public class TurnEnforcement {
 		}
 		gameHasStarted = true;
 	}
-	
+
 	/**
 	 * Increment the counter to point to the next player, resetting
 	 * it if necessary.
@@ -56,7 +58,7 @@ public class TurnEnforcement {
 		}
 		logger.info("It's currently Player " + playerArr[currentTurn] + "'s turn.");
 	}
-	
+
 	/**
 	 * Get the current player from whom input should be expected by the server.
 	 * 
@@ -72,7 +74,7 @@ public class TurnEnforcement {
 		}
 		return playerNum;
 	}
-	
+
 	/**
 	 * Mark this particular player's entry with ELIMINATED_FLAG to ensure
 	 * their turn is skipped.
@@ -83,7 +85,7 @@ public class TurnEnforcement {
 		System.out.println("Player " + playerNum + " has been eliminated.");
 		playerArr[playerNum-1] = ELIMINATED_FLAG;
 	}
-	
+
 	/**
 	 * Used to ensure moves aren't attempted until the game has been initialized.
 	 * 
@@ -92,7 +94,7 @@ public class TurnEnforcement {
 	public static synchronized boolean gameHasStarted() {
 		return gameHasStarted;
 	}
-	
+
 	/**
 	 * Used to enforce the logic of disproving suggestions.
 	 * 
@@ -101,36 +103,51 @@ public class TurnEnforcement {
 	public static synchronized boolean isInDisproveSuggestionMode() {
 		return disproveSuggestionMode;
 	}
-	
+
 	/**
 	 * Turn on "disprove suggestion" mode.
 	 */
-	public static synchronized void turnOnDisproveSuggestionMode() {
+	public static synchronized void turnOnDisproveSuggestionMode(Game gameObj, Player playerObj) {
+		game = gameObj;
+		player = playerObj;
 		disproveSuggestionMode = true;
 	}
-	
+
 	/**
 	 * Turn off "disprove suggestion" mode.
 	 */
 	public static synchronized void turnOffDisproveSuggestionMode() {
 		disproveSuggestionMode = false;
 	}
-	
+
 	/**
 	 * Set the <code>ArrayList</code> of player characters who may need to disprove a suggestion that was made.
 	 */
 	public static synchronized void setPlayersToDisprove(ArrayList<String> players) {
 		playersToDisprove = players;
 		indexExpectedToDisproveNext = 0;
+		// Tell the next player eligible to disprove that it's their turn to do so
+		String playerExpectedToDisproveNext = playersToDisprove.get(indexExpectedToDisproveNext);
+		game.tellPlayerToDisprove(playerExpectedToDisproveNext, "Please attempt to disprove the suggestion with syntax 'DS_<Card>'");
 	}
-	
+
 	/**
 	 * Tell the TurnEnforcement class that a player was unable to make a suggestion.
 	 */
 	public static synchronized void disproveSuggestionFailed() {
 		indexExpectedToDisproveNext++;
+		// If none of the players succeeded in disproving the suggestion, turn of "disprove suggestion" mode
+		if(indexExpectedToDisproveNext == playersToDisprove.size()) {
+			turnOffDisproveSuggestionMode();
+			String msg = "No opponent was able to disprove your suggestion. Either make an accusation or end your turn.";
+			game.sendSpecificPlayerMsg(player, msg);
+		} else {
+			// Tell the next player eligible to disprove that it's their turn to do so
+			String playerExpectedToDisproveNext = playersToDisprove.get(indexExpectedToDisproveNext);
+			game.tellPlayerToDisprove(playerExpectedToDisproveNext, "Please attempt to disprove the suggestion with syntax 'DS_<Card>'");
+		}
 	}
-	
+
 	/**
 	 * Get the character/player who is expected to disprove a suggestion next.
 	 * 

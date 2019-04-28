@@ -303,6 +303,13 @@ public class Game {
 	 * @return whether the move is valid
 	 */
 	public boolean validateMove(Player player, String move) {
+		// Verify that the input is of the expected format
+		if(!validateInput(move)) {
+			logger.info("Move " + move + " has an invalid format");
+			// If it fails, don't need to broadcast as it was just a user typo
+			return false;
+		}
+
 		// If a player enters 'Done', they've decided to end their turn
 		if(move.trim().equalsIgnoreCase(DONE_STR)) {
 			// Increment the move count for this player 
@@ -311,13 +318,6 @@ public class Game {
 			broadcastMove(player, END_TURN_STR);
 			// Always a valid move
 			return true;
-		}
-
-		// Verify that the input is of the expected format
-		if(!validateInput(move)) {
-			logger.info("Move " + move + " has an invalid format");
-			// If it fails, don't need to broadcast as it was just a user typo
-			return false;
 		}
 
 		// Options for moving:
@@ -490,15 +490,17 @@ public class Game {
 			// Broadcast the new location of the character that was suggested so clients can update their boards
 			broadcastNewLocation(character, suggestedRoomEntity);
 
-			// Turn on "disprove suggestion" mode
-			TurnEnforcement.turnOnDisproveSuggestionMode();
+			// Turn on "disprove suggestion" mode, passing references to this game and the player who made the suggestion
+			TurnEnforcement.turnOnDisproveSuggestionMode(this, player);
 
 			// Send the static TurnEnforcement class a list of players that might need to disprove the suggestion
 			ArrayList<String> playersToDisprove = new ArrayList<>();
 			for(Player p : players) {
 				// Everyone other than the player who made the suggestion may be asked to disprove it
 				if(!p.getAbbreviation().equals(player.getAbbreviation())) {
-					playersToDisprove.add(p.getAbbreviation());
+					if(p.isActive()) {
+						playersToDisprove.add(p.getAbbreviation());
+					}
 				}
 			}
 			TurnEnforcement.setPlayersToDisprove(playersToDisprove);
@@ -597,10 +599,10 @@ public class Game {
 	/**
 	 * Broadcast any message.
 	 */
-	public void broadcastMsg(String string) {
+	public void broadcastMsg(String message) {
 		// Broadcast the given string to all clients
 		for(ConnectionHandler connection : connections) {
-			connection.sendMessage(string);
+			connection.sendMessage(message);
 		}
 	}
 
@@ -750,6 +752,36 @@ public class Game {
 		}
 
 		printBoard();
+	}
+	
+	/**
+	 * Send a message to only this player.
+	 * 
+	 * @param player the player to whom the message will be sent
+	 * @param message the message to send
+	 */
+	public void sendSpecificPlayerMsg(Player player, String message) {
+		for(ConnectionHandler connection : connections) {
+			String characterName = connection.getPlayer().getCharacterName().getCharacterName();
+			if(characterName.equals(player.getCharacterName().getCharacterName())) {
+				connection.sendMessage(message);
+			}
+		}
+	}
+	
+	/**
+	 * Tell a player its their turn to attempt to disprove the suggestion.
+	 * 
+	 * @param abbreviation the abbreviation for the character who should disprove next
+	 * @param message the message to send to this player
+	 */
+	public void tellPlayerToDisprove(String abbreviation, String message) {
+		for(ConnectionHandler connection : connections) {
+			String characterAbbrev = connection.getPlayer().getAbbreviation();
+			if(characterAbbrev.equals(abbreviation)) {
+				connection.sendMessage(message);
+			}
+		}
 	}
 
 	/**

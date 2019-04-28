@@ -159,20 +159,16 @@ public class ConnectionHandler implements Runnable {
 					if(clientInput.startsWith(Move.DISPROVE_SUGGEST)) {
 						String cardResponse = clientInput.split(Move.MOVE_SEP)[1];
 						if(cardResponse.equals(game.getRecentSuggestionChar())) {
-							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
-									cardResponse);
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion");
 							TurnEnforcement.turnOffDisproveSuggestionMode();
 						} else if(cardResponse.equals(game.getRecentSuggestionRoom())) {
-							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
-									cardResponse);
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion");
 							TurnEnforcement.turnOffDisproveSuggestionMode();
 						} else if(cardResponse.equals(game.getRecentSuggestionWeap())) {
-							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion with " + 
-									cardResponse);
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " disproved a suggestion");
 							TurnEnforcement.turnOffDisproveSuggestionMode();
 						} else {
-							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " was unable to disprove a suggestion with " + 
-									cardResponse);
+							game.broadcastMsg(getPlayer().getCharacterName().getCharacterName() + " was unable to disprove a suggestion");
 							TurnEnforcement.disproveSuggestionFailed();
 						}
 						continue;
