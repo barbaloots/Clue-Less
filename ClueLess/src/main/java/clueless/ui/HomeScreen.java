@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -21,6 +23,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import clueless.gamelogic.Player;
+import clueless.gamelogic.locationenums.LocationEnum;
+import clueless.gamelogic.CharacterName;
+import clueless.gamelogic.Game;
+
 /**
  * Class for home screen UI
  * 
@@ -30,6 +37,8 @@ import javax.swing.border.EmptyBorder;
 public class HomeScreen extends JPanel {
 
 	private Image backgroundImage;
+	private Player player;
+	private Game game;
 	
 	/**
 	 * Constructor.
@@ -72,12 +81,32 @@ public class HomeScreen extends JPanel {
 					return new Dimension(300, 50);
 				}
 			};
+			newGameButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {	
+					home.setVisible(false);
+
+					//TODO
+					game = new Game(6);
+					player = game.getPlayers().get(0);
+					new Board(game, player);
+				}
+			});
+			
 			JButton continueGameButton = new JButton("CONTINUE GAME") {
 				@Override
 				public Dimension getPreferredSize() {
 					return new Dimension(300, 50);
 				}
 			};
+			continueGameButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					home.setVisible(false);
+					
+					
+				}
+			});
+			continueGameButton.setEnabled(false);
+			
 			JButton userProfileButton = new JButton("USER PROFILE") {
 				@Override
 				public Dimension getPreferredSize() {

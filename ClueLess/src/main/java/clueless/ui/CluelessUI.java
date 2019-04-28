@@ -1,5 +1,7 @@
 package clueless.ui;
 
+import clueless.gamelogic.Player;
+
 /**
  * Just a placeholder for now.
  * 
