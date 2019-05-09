@@ -20,6 +20,7 @@ import clueless.gamelogic.Game;
 import clueless.gamelogic.Player;
 import clueless.gamelogic.TurnEnforcement;
 import clueless.gamelogic.locationenums.LocationEnum;
+import clueless.gamelogic.locationenums.MovementEnum;
 
 /**
  * Class for general/main board UI and user interfacing
@@ -149,19 +150,12 @@ public class Board {
 			JPanel piecesPanel = new JPanel(new BorderLayout()) {
 				@Override
 				public void paintComponent(Graphics g) {
-					//g.drawImage(greenPiece, LocationEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getX(), LocationEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getY(), null);
-					//g.drawImage(mustardPiece, LocationEnum.LOUNGETODININGROOMHALLWAY.getLocation().getX(), LocationEnum.LOUNGETODININGROOMHALLWAY.getLocation().getY(), null);
-					//g.drawImage(peacockPiece, LocationEnum.LIBRARYTOCONSERVATORYHALLWAY.getLocation().getX(), LocationEnum.LIBRARYTOCONSERVATORYHALLWAY.getLocation().getY(), null);
-					//g.drawImage(plumPiece, LocationEnum.STUDYTOLIBRARYHALLWAY.getLocation().getX(), LocationEnum.STUDYTOLIBRARYHALLWAY.getLocation().getY(), null);
-					//g.drawImage(scarletPiece, LocationEnum.HALLTOLOUNGEHALLWAY.getLocation().getX(), LocationEnum.HALLTOLOUNGEHALLWAY.getLocation().getY(), null);
-					//g.drawImage(whitePiece, LocationEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getX(), LocationEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getY(), null);
-					
-					g.drawImage(greenPiece, 566, 630, null);
-					g.drawImage(mustardPiece, 940, 230, null);
-					g.drawImage(peacockPiece, 437, 490, null);
-					g.drawImage(plumPiece, 437, 220, null);
-					g.drawImage(scarletPiece, 815, 90, null);
-					g.drawImage(whitePiece, 815, 630, null);
+					g.drawImage(greenPiece, MovementEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getX(), MovementEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getY(), null);
+					g.drawImage(mustardPiece, MovementEnum.LOUNGETODININGROOMHALLWAY.getLocation().getX(), MovementEnum.LOUNGETODININGROOMHALLWAY.getLocation().getY(), null);
+					g.drawImage(peacockPiece, MovementEnum.LIBRARYTOCONSERVATORYHALLWAY.getLocation().getX(), MovementEnum.LIBRARYTOCONSERVATORYHALLWAY.getLocation().getY(), null);
+					g.drawImage(plumPiece, MovementEnum.STUDYTOLIBRARYHALLWAY.getLocation().getX(), MovementEnum.STUDYTOLIBRARYHALLWAY.getLocation().getY(), null);
+					g.drawImage(scarletPiece, MovementEnum.HALLTOLOUNGEHALLWAY.getLocation().getX(), MovementEnum.HALLTOLOUNGEHALLWAY.getLocation().getY(), null);
+					g.drawImage(whitePiece, MovementEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getX(), MovementEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getY(), null);					
 				}
 			};
 			

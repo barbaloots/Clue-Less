@@ -5,14 +5,24 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
+import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+
+import clueless.gamelogic.Accusation;
+import clueless.gamelogic.RoomName;
+import clueless.gamelogic.Suggestion;
+import clueless.gamelogic.WeaponType;
+import clueless.gamelogic.CharacterName;
 
 /**
  * Parent window for the suggestion and accusation windows.
@@ -39,12 +49,19 @@ public class SuggestAccuseParentWindow {
 		
 		JLabel whoLabel = new JLabel("Who?");		
 		JPanel who = new JPanel(new GridLayout(1, 6));
+		ButtonGroup whoGroup = new ButtonGroup();
 		JRadioButton green = new JRadioButton("Green");
 		JRadioButton mustard = new JRadioButton("Mustard");
 		JRadioButton peacock = new JRadioButton("Peacock");
 		JRadioButton plum = new JRadioButton("Plum");
 		JRadioButton scarlet = new JRadioButton("Scarlet");
 		JRadioButton white = new JRadioButton("White");
+		whoGroup.add(green);
+		whoGroup.add(mustard);
+		whoGroup.add(peacock);
+		whoGroup.add(plum);
+		whoGroup.add(scarlet);
+		whoGroup.add(white);
 		who.add(green);
 		who.add(mustard);
 		who.add(peacock);
@@ -54,12 +71,19 @@ public class SuggestAccuseParentWindow {
 		
 		JLabel whatLabel = new JLabel("What?");
 		JPanel what = new JPanel(new GridLayout(1, 6));
+		ButtonGroup whatGroup = new ButtonGroup();
 		JRadioButton candlestick = new JRadioButton("Candlestick");
 		JRadioButton knife = new JRadioButton("Knife");
 		JRadioButton leadpipe = new JRadioButton("Lead Pipe");
 		JRadioButton revolver = new JRadioButton("Revolver");
 		JRadioButton rope = new JRadioButton("Rope");
 		JRadioButton wrench = new JRadioButton("Wrench");
+		whatGroup.add(candlestick);
+		whatGroup.add(knife);
+		whatGroup.add(leadpipe);
+		whatGroup.add(revolver);
+		whatGroup.add(rope);
+		whatGroup.add(wrench);
 		what.add(candlestick);
 		what.add(knife);
 		what.add(leadpipe);
@@ -69,6 +93,7 @@ public class SuggestAccuseParentWindow {
 		
 		JLabel whereLabel = new JLabel("Where?");
 		JPanel where = new JPanel(new GridLayout(3, 3));
+		ButtonGroup whereGroup = new ButtonGroup();
 		JRadioButton study = new JRadioButton("Study");
 		JRadioButton hall = new JRadioButton("Hall");
 		JRadioButton lounge = new JRadioButton("Lounge");
@@ -78,6 +103,15 @@ public class SuggestAccuseParentWindow {
 		JRadioButton conservatory = new JRadioButton("Conservatory");
 		JRadioButton ballroom = new JRadioButton("Ballroom");
 		JRadioButton kitchen = new JRadioButton("Kitchen");
+		whereGroup.add(study);
+		whereGroup.add(hall);
+		whereGroup.add(lounge);
+		whereGroup.add(library);
+		whereGroup.add(billiard);
+		whereGroup.add(dining);
+		whereGroup.add(conservatory);
+		whereGroup.add(ballroom);
+		whereGroup.add(kitchen);
 		where.add(study);
 		where.add(hall);
 		where.add(lounge);
@@ -91,7 +125,38 @@ public class SuggestAccuseParentWindow {
 		JButton submit = new JButton(accuse ? "Accuse" : "Suggest");
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String who = "";
+				for(AbstractButton button : Collections.list(whoGroup.getElements())) {
+					if(button.isSelected()) {
+						who = button.getText();
+						break;
+					}
+				}
 				
+				String what = "";
+				for(AbstractButton button : Collections.list(whatGroup.getElements())) {
+					if(button.isSelected()) {
+						what = button.getText();
+						break;
+					}
+				}
+				
+				String where = "";
+				for(AbstractButton button : Collections.list(whereGroup.getElements())) {
+					if(button.isSelected()) {
+						where = button.getText();
+						break;
+					}
+				}
+				
+				if(accuse) {
+					new Accusation(WeaponType.valueOf(what), RoomName.valueOf(where), CharacterName.valueOf(who));
+				} else {
+					new Suggestion(WeaponType.valueOf(what), RoomName.valueOf(where), CharacterName.valueOf(who));
+				}
+				
+				JOptionPane.showMessageDialog(window, "You are " + (accuse ? "accusing " : "suggesting ") + who + " with the " + what + " in the " + where + ".");
+				window.dispose();
 			}
 		});
 		
