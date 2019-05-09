@@ -150,9 +150,9 @@ public class SuggestAccuseParentWindow {
 				}
 				
 				if(accuse) {
-					new Accusation(WeaponType.valueOf(what), RoomName.valueOf(where), CharacterName.valueOf(who));
+					new Accusation(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
 				} else {
-					new Suggestion(WeaponType.valueOf(what), RoomName.valueOf(where), CharacterName.valueOf(who));
+					new Suggestion(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
 				}
 				
 				JOptionPane.showMessageDialog(window, "You are " + (accuse ? "accusing " : "suggesting ") + who + " with the " + what + " in the " + where + ".");
