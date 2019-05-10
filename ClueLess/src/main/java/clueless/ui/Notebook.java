@@ -36,10 +36,11 @@ public class Notebook {
 	private JFrame notebookFrame;
 	private JButton notebookButton;
 	private clueless.gamelogic.Notebook playerNotes;
-    private HashMap<CharacterName, Boolean> tmp;
-    private HashMap<WeaponType, Boolean> wtmp;
-    private HashMap<RoomName, Boolean> rtmp;
-	
+        private HashMap<CharacterName, Boolean> tmp;
+        private HashMap<WeaponType, Boolean> wtmp;
+        private HashMap<RoomName, Boolean> rtmp;
+	private static int xDim = 200;
+        private static int yDim = 700;
 	/**
 	 * Constructor
 	 * 
@@ -57,7 +58,7 @@ public class Notebook {
 	/**
 	 * initializes notebook frame
 	 */
-	private void init() {
+	private void init() {            
 		notebookFrame = new JFrame();
 		notebookFrame.setAlwaysOnTop(true);
 		notebookFrame.addWindowListener(new WindowAdapter() {
@@ -70,14 +71,17 @@ public class Notebook {
 		JPanel notebook = new JPanel();
 		BoxLayout box = new BoxLayout(notebook, BoxLayout.Y_AXIS);
 		notebook.setLayout(box);
-		notebook.setPreferredSize(new Dimension(200, 700));
+		notebook.setPreferredSize(new Dimension(xDim, yDim));
 		
 	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-	    int x = (int) rect.getMaxX() - notebookFrame.getWidth();
+                System.out.println("rect.getMaxX(): " +rect.getMaxX());
+                System.out.println("notebookFrame.getWidth(): " +notebookFrame.getWidth());
+	    int x = (int) rect.getMaxX() - xDim;
 	    int y = 0;
 	    notebookFrame.setLocation(x, y);
+
 	    
 		JLabel whoLabel = new JLabel("Who?");		
 		JPanel who = this.who();
