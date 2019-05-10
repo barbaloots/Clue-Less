@@ -76,8 +76,6 @@ public class Notebook {
 	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-                System.out.println("rect.getMaxX(): " +rect.getMaxX());
-                System.out.println("notebookFrame.getWidth(): " +notebookFrame.getWidth());
 	    int x = (int) rect.getMaxX() - xDim;
 	    int y = 0;
 	    notebookFrame.setLocation(x, y);
