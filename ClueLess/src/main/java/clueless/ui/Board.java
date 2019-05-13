@@ -33,7 +33,7 @@ import clueless.networking.*;
 public class Board {
 
 	private Image backgroundImage;
-	private Notebook notebook;
+	private NotebookUI notebook;
 	private Player player;
 	private Game game;
 	
@@ -91,7 +91,7 @@ public class Board {
 			notebookButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (notebook == null) {
-						notebook = new Notebook(notebookButton, player);
+						notebook = new NotebookUI(notebookButton, player);
 						notebook.open(player);
 					}
 					else {
