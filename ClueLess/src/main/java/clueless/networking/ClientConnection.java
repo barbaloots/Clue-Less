@@ -30,6 +30,7 @@ import clueless.gamelogic.RoomCard;
 import clueless.gamelogic.WeaponCard;
 import clueless.gamelogic.WeaponType;
 import clueless.gamelogic.locationenums.LocationEnum;
+import clueless.ui.*;
 
 /**
  * Run by the client to establish a connection to the server at the specified
@@ -52,6 +53,7 @@ public class ClientConnection {
 	private static final String IP_ADDRESS_KEY = "ipAddress";
 	// Game-related constants
 	private static final String GAMEOVER = "GAMEOVER";
+	private static HomeScreen homescreen;
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
@@ -73,16 +75,16 @@ public class ClientConnection {
 
 			Runnable serverInput = new ServerInput(serverIn);
 			new Thread(serverInput).start();
-
+			homescreen = new HomeScreen(clientOut);
 			// Print the acknowledgement from the server
 			//logger.info(serverIn.readLine());
 
 			Scanner input = new Scanner(System.in);
 			// Continually accept input
-			while (input.hasNext()) {
+			//while (input.hasNext()) {
 				// Send the client input to the server
-				clientOut.println(input.nextLine());
-			}
+				//clientOut.println(input.nextLine());
+			//}
 		} catch (ConnectException e) {
 			logger.error("Either the server is not running or the game is already full and cannot be joined.");
 		}
@@ -93,7 +95,7 @@ public class ClientConnection {
 	 * is used for sending this client's input to the server. This makes the 
 	 * system full-duplex and ensures broadcast messages can be received right
 	 * away.
-	 *
+	 * 
 	 * @author matthewsobocinski
 	 */
 	static class ServerInput implements Runnable {
