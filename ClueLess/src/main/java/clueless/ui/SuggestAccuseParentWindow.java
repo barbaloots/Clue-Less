@@ -1,6 +1,7 @@
 package clueless.ui;
 
 import java.awt.Dimension;
+
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -23,6 +24,7 @@ import clueless.gamelogic.RoomName;
 import clueless.gamelogic.Suggestion;
 import clueless.gamelogic.WeaponType;
 import clueless.gamelogic.CharacterName;
+import java.io.*;
 
 /**
  * Parent window for the suggestion and accusation windows.
@@ -38,7 +40,7 @@ public class SuggestAccuseParentWindow {
 	 * @param accuse
 	 * 		true if the player is making an accusation and false if player is making a suggestion
 	 */
-	public SuggestAccuseParentWindow(JFrame parent, Boolean accuse) {
+	public SuggestAccuseParentWindow(JFrame parent, Boolean accuse, PrintWriter clientOut) {
 		JDialog window = new JDialog(parent, "Make a" + (accuse ? "n Accusation" : " Suggestion"), true);
 		window.setLocationRelativeTo(null);
 		
@@ -125,6 +127,9 @@ public class SuggestAccuseParentWindow {
 		JButton submit = new JButton(accuse ? "Accuse" : "Suggest");
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//String suggest = "AS";
+				Suggestion suggestion;
+				Accusation accusation;
 				String who = "";
 				for(AbstractButton button : Collections.list(whoGroup.getElements())) {
 					if(button.isSelected()) {
@@ -137,6 +142,10 @@ public class SuggestAccuseParentWindow {
 				for(AbstractButton button : Collections.list(whatGroup.getElements())) {
 					if(button.isSelected()) {
 						what = button.getText();
+						if(what.equalsIgnoreCase("Lead pipe"))
+						{
+							what = "leadpipe";
+						}
 						break;
 					}
 				}
@@ -150,13 +159,18 @@ public class SuggestAccuseParentWindow {
 				}
 				
 				if(accuse) {
-					new Accusation(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
+					accusation = new Accusation(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
+					clientOut.println(accusation.toString());
 				} else {
-					new Suggestion(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
+					suggestion = new Suggestion(WeaponType.valueOf(what.toUpperCase()), RoomName.valueOf(where.toUpperCase()), CharacterName.valueOf(who.toUpperCase()));
+					clientOut.println(suggestion.toString());
+					
 				}
 				
 				JOptionPane.showMessageDialog(window, "You are " + (accuse ? "accusing " : "suggesting ") + who + " with the " + what + " in the " + where + ".");
+				//suggest = suggest + "_" + who + "_" + what + "_" + where;
 				window.dispose();
+
 			}
 		});
 		
