@@ -1,6 +1,8 @@
 package clueless.ui;
 
+import java.io.*;
 import java.awt.BorderLayout;
+
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,8 +12,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.Box;
@@ -28,6 +28,7 @@ import clueless.gamelogic.locationenums.LocationEnum;
 import clueless.gamelogic.CharacterName;
 import clueless.gamelogic.Game;
 
+
 /**
  * Class for home screen UI
  * 
@@ -39,14 +40,18 @@ public class HomeScreen extends JPanel {
 	private Image backgroundImage;
 	private Player player;
 	private Game game;
+	private PrintWriter clientOut;
 	
 	/**
 	 * Constructor.
 	 */
-	public HomeScreen() {
+	public HomeScreen(PrintWriter clientOut) {
 		init();
+		this.clientOut = clientOut;
 	}
 	
+
+
 	/**
 	 * Initializes home screen
 	 * 
@@ -61,7 +66,7 @@ public class HomeScreen extends JPanel {
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/CluePoster.png"));
+			backgroundImage = ImageIO.read(new File("src/main/Resources/CluePoster.png"));
 			JPanel panel = new JPanel(new BorderLayout()) {
 		
 				@Override
@@ -88,7 +93,7 @@ public class HomeScreen extends JPanel {
 					//TODO
 					game = new Game(6);
 					player = game.getPlayers().get(0);
-					new Board(game, player);
+					new Board(game, player, clientOut);
 				}
 			});
 			
