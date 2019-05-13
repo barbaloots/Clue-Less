@@ -1,5 +1,6 @@
 package clueless.ui;
 
+import clueless.gamelogic.*;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -30,12 +31,12 @@ import clueless.gamelogic.WeaponType;
  * @author erinsmedley
  *
  */
-public class Notebook {
+public class NotebookUI {
 
 	private Player player;
 	private JFrame notebookFrame;
 	private JButton notebookButton;
-	private clueless.gamelogic.Notebook playerNotes;
+	private clueless.gamelogic.Notebook playerNotes;   
         private HashMap<CharacterName, Boolean> tmp;
         private HashMap<WeaponType, Boolean> wtmp;
         private HashMap<RoomName, Boolean> rtmp;
@@ -47,7 +48,7 @@ public class Notebook {
 	 * @param player
 	 * 		Determines which player's notebook is being referenced
 	 */
-	public Notebook(JButton notebookButton, Player player) {
+	public NotebookUI(JButton notebookButton, Player player) {
 		this.notebookButton = notebookButton;
 		this.player = player;
 		playerNotes = player.getNotebook();
@@ -58,7 +59,8 @@ public class Notebook {
 	/**
 	 * initializes notebook frame
 	 */
-	private void init() {            
+	private void init() {         
+		
 		notebookFrame = new JFrame();
 		notebookFrame.setAlwaysOnTop(true);
 		notebookFrame.addWindowListener(new WindowAdapter() {
