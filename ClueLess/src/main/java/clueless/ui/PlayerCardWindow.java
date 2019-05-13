@@ -46,9 +46,9 @@ public class PlayerCardWindow {
 		hand.setLayout(box);
 		hand.setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
 
-		JLabel label1 = new JLabel(new ImageIcon("ClueLess/src/main/Resources/Cards/" + card1 + ".png"));
-		JLabel label2 = new JLabel(new ImageIcon("ClueLess/src/main/Resources/Cards/" + card2 + ".png"));
-		JLabel label3 = new JLabel(new ImageIcon("ClueLess/src/main/Resources/Cards/" + card3 + ".png"));
+		JLabel label1 = new JLabel(new ImageIcon("src/main/Resources/Cards/" + card1 + ".png"));
+		JLabel label2 = new JLabel(new ImageIcon("src/main/Resources/Cards/" + card2 + ".png"));
+		JLabel label3 = new JLabel(new ImageIcon("src/main/Resources/Cards/" + card3 + ".png"));
 		
 		hand.add(label1);
 		hand.add(label2);
