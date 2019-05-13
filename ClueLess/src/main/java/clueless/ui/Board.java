@@ -1,13 +1,14 @@
 package clueless.ui;
 
+
 import java.awt.BorderLayout;
+
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -21,6 +22,7 @@ import clueless.gamelogic.Player;
 import clueless.gamelogic.TurnEnforcement;
 import clueless.gamelogic.locationenums.LocationEnum;
 import clueless.gamelogic.locationenums.MovementEnum;
+import clueless.networking.*;
 
 /**
  * Class for general/main board UI and user interfacing
@@ -31,7 +33,7 @@ import clueless.gamelogic.locationenums.MovementEnum;
 public class Board {
 
 	private Image backgroundImage;
-	private Notebook notebook;
+	private NotebookUI notebook;
 	private Player player;
 	private Game game;
 	
@@ -44,14 +46,15 @@ public class Board {
 	private Image plumPiece;
 	private Image scarletPiece;
 	private Image whitePiece;
+	private PrintWriter clientOut;
 	
 	/**
 	 * Constructor
 	 */
-	public Board(Game game, Player player) {
+	public Board(Game game, Player player, PrintWriter clientOut) {
 		this.game = game;
 		this.player = player;
-		
+		this.clientOut = clientOut;
 		init();
 		initGamePieces();
 	}
@@ -65,7 +68,7 @@ public class Board {
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/ClueBoard.png"));
+			backgroundImage = ImageIO.read(new File("src/main/Resources/ClueBoard.png"));
 			panel = new JPanel(new BorderLayout()) {
 		
 				@Override
@@ -88,7 +91,7 @@ public class Board {
 			notebookButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (notebook == null) {
-						notebook = new Notebook(notebookButton, player);
+						notebook = new NotebookUI(notebookButton, player);
 						notebook.open(player);
 					}
 					else {
@@ -108,14 +111,14 @@ public class Board {
 			JButton suggestButton = new JButton("MAKE SUGGESTION");
 			suggestButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					new SuggestAccuseParentWindow(board, false);
+					new SuggestAccuseParentWindow(board, false, clientOut);
 				}
 			});
 			
 			JButton accuseButton = new JButton("MAKE ACCUSATION");
 			accuseButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					new SuggestAccuseParentWindow(board, true);
+					new SuggestAccuseParentWindow(board, true, clientOut);
 				}
 			});
 			
@@ -140,12 +143,12 @@ public class Board {
 	
 	private void initGamePieces() {
 		try {
-			greenPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/GreenPiece.png"));
-			mustardPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/MustardPiece.png"));
-			peacockPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PeacockPiece.png"));			
-			plumPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PlumPiece.png"));
-			scarletPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/ScarletPiece.png"));	
-			whitePiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/WhitePiece.png"));
+			greenPiece = ImageIO.read(new File("src/main/Resources/GamePieces/GreenPiece.png"));
+			mustardPiece = ImageIO.read(new File("src/main/Resources/GamePieces/MustardPiece.png"));
+			peacockPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PeacockPiece.png"));			
+			plumPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PlumPiece.png"));
+			scarletPiece = ImageIO.read(new File("src/main/Resources/GamePieces/ScarletPiece.png"));	
+			whitePiece = ImageIO.read(new File("src/main/Resources/GamePieces/WhitePiece.png"));
 			
 			JPanel piecesPanel = new JPanel(new BorderLayout()) {
 				@Override
