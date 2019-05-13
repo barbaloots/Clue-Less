@@ -7,8 +7,8 @@ import clueless.gamelogic.Player;
  * 
  * @author matthewsobocinski
  */
-public class CluelessUI {
+/*public class CluelessUI {
    public static void main(String[] args) {
 	   HomeScreen start = new HomeScreen();
    }
-}
+}*/
