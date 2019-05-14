@@ -31,7 +31,7 @@ import clueless.gamelogic.WeaponType;
  * @author erinsmedley
  *
  */
-public class Notebook {
+public class NotebookUI {
 
 	private Player player;
 	private JFrame notebookFrame;
@@ -48,7 +48,7 @@ public class Notebook {
 	 * @param player
 	 * 		Determines which player's notebook is being referenced
 	 */
-	public Notebook(JButton notebookButton, Player player) {
+	public NotebookUI(JButton notebookButton, Player player) {
 		this.notebookButton = notebookButton;
 		this.player = player;
 		playerNotes = player.getNotebook();
