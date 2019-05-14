@@ -2,6 +2,7 @@ package clueless.ui;
 
 import java.awt.Dimension;
 
+
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -154,6 +155,15 @@ public class SuggestAccuseParentWindow {
 				for(AbstractButton button : Collections.list(whereGroup.getElements())) {
 					if(button.isSelected()) {
 						where = button.getText();
+						if(where.equalsIgnoreCase("Dining room"))
+						{
+							where = "diningroom";
+						}
+						else if(where.equalsIgnoreCase("Billiard room"))
+						{
+							where = "billiardroom";
+						}
+						
 						break;
 					}
 				}
