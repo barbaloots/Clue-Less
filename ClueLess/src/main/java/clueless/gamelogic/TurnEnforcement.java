@@ -136,7 +136,7 @@ public class TurnEnforcement {
 	 */
 	public static synchronized void disproveSuggestionFailed() {
 		indexExpectedToDisproveNext++;
-		// If none of the players succeeded in disproving the suggestion, turn of "disprove suggestion" mode
+		// If none of the players succeeded in disproving the suggestion, turn off "disprove suggestion" mode
 		if(indexExpectedToDisproveNext == playersToDisprove.size()) {
 			turnOffDisproveSuggestionMode();
 			String msg = "No opponent was able to disprove your suggestion. Either make an accusation or end your turn.";
