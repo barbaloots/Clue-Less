@@ -39,7 +39,7 @@ import java.io.*;
  */
 public class ProveSuggestionWindow {
 
-	public ProveSuggestionWindow(Player player, PrintWriter clientOut) 
+	public ProveSuggestionWindow(JFrame parent,Player player, PrintWriter clientOut) 
 	{
 		JDialog window = new JDialog(parent, "Disprove the suggestion", true);
 		window.setLocationRelativeTo(null);
