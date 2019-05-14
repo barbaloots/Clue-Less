@@ -41,6 +41,7 @@ public class HomeScreen extends JPanel {
 	private Player player;
 	private Game game;
 	private PrintWriter clientOut;
+	private Board board;
 	
 	/**
 	 * Constructor.
@@ -93,7 +94,7 @@ public class HomeScreen extends JPanel {
 					//TODO
 					game = new Game(6);
 					player = game.getPlayers().get(0);
-					new Board(game, player, clientOut);
+					board = new Board(game, player, clientOut);
 				}
 			});
 			
@@ -142,6 +143,11 @@ public class HomeScreen extends JPanel {
 		
 		home.pack();
 		home.setVisible(true);
+	}
+	
+	public void callBoardMethod()
+	{
+		board.openDisproveWindow();
 	}
 }
 
