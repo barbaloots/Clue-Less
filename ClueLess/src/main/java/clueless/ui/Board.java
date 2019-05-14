@@ -6,11 +6,18 @@ import java.awt.BorderLayout;
 
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.awt.Dimension;
-import java.io.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -18,13 +25,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
+import clueless.gamelogic.CustomOutputStream;
 import clueless.gamelogic.Game;
 import clueless.gamelogic.Player;
 import clueless.gamelogic.TurnEnforcement;
 import clueless.gamelogic.locationenums.LocationEnum;
 import clueless.gamelogic.locationenums.MovementEnum;
-import clueless.networking.*;
 
 /**
  * Class for general/main board UI and user interfacing
@@ -71,7 +80,7 @@ public class Board {
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("src/main/Resources/ClueBoard.png"));
+			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/ClueBoard.png"));
 			panel = new JPanel(new BorderLayout()) {
 		
 				@Override
@@ -144,6 +153,17 @@ public class Board {
 			
 			panel.add(buttonsPanel, BorderLayout.NORTH);
 			
+			//JScrollPane logPanel = new JScrollPane();
+			//logPanel.setPreferredSize(new Dimension(300, 300));
+			JTextArea logTextArea = new JTextArea(30, 20);
+			logTextArea.setEditable(false);
+			
+			PrintStream printStream = new PrintStream(new CustomOutputStream(logTextArea));
+			System.setOut(printStream);
+			System.setErr(printStream);
+					
+			//logPanel.add(new JScrollPane(logTextArea));
+			panel.add(new JScrollPane(logTextArea), BorderLayout.WEST);
 			board.add(panel);
 			
 		} catch (IOException e) {
@@ -157,12 +177,12 @@ public class Board {
 	
 	private void initGamePieces() {
 		try {
-			greenPiece = ImageIO.read(new File("src/main/Resources/GamePieces/GreenPiece.png"));
-			mustardPiece = ImageIO.read(new File("src/main/Resources/GamePieces/MustardPiece.png"));
-			peacockPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PeacockPiece.png"));			
-			plumPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PlumPiece.png"));
-			scarletPiece = ImageIO.read(new File("src/main/Resources/GamePieces/ScarletPiece.png"));	
-			whitePiece = ImageIO.read(new File("src/main/Resources/GamePieces/WhitePiece.png"));
+			greenPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/GreenPiece.png"));
+			mustardPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/MustardPiece.png"));
+			peacockPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PeacockPiece.png"));			
+			plumPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PlumPiece.png"));
+			scarletPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/ScarletPiece.png"));	
+			whitePiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/WhitePiece.png"));
 			
 			String playerAbbreviation = player.getAbbreviation();
 			

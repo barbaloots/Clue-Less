@@ -27,14 +27,14 @@ public class ServerConnection {
 	// Properties object to hold system configuration
 	private static Properties props = null;
 	// Path to properties file
-	private static final String propsPath = "resources/clueless.properties";
+	private static final String propsPath = "ClueLess/resources/clueless.properties";
 	// String constants for keys in properties file
 	private static final String PORT_NUMBER_KEY = "portNumber";
 	private static final String NUM_PLAYERS_KEY = "numPlayers";
 
 	public static void main(String[] args) throws IOException {
 		// Configure log4j
-		DOMConfigurator.configure("log4jserver.xml");
+		DOMConfigurator.configure("ClueLess/log4jserver.xml");
 		// Count players as they join the game
 		int playerCount = 0;
 		// Only need a single ServerSocket object, but a new ConnectionHandler is created for each player that joins

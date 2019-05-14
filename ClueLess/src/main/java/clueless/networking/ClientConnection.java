@@ -47,7 +47,7 @@ public class ClientConnection {
 	// Properties object to hold system configuration
 	private static Properties props = null;
 	// Path to properties file
-	private static final String propsPath = "resources/clueless.properties";
+	private static final String propsPath = "ClueLess/resources/clueless.properties";
 	// String constants for keys in properties file
 	private static final String PORT_NUMBER_KEY = "portNumber";
 	private static final String IP_ADDRESS_KEY = "ipAddress";
@@ -58,7 +58,7 @@ public class ClientConnection {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		// Configure log4j
-		DOMConfigurator.configure("log4jclient.xml");
+		DOMConfigurator.configure("ClueLess/log4jclient.xml");
 		Socket socket = null;
 		PrintWriter clientOut = null;
 		BufferedReader serverIn = null;

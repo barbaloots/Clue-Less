@@ -67,7 +67,7 @@ public class HomeScreen extends JPanel {
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("src/main/Resources/CluePoster.png"));
+			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/CluePoster.png"));
 			JPanel panel = new JPanel(new BorderLayout()) {
 		
 				@Override
