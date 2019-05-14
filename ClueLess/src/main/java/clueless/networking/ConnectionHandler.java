@@ -1,6 +1,7 @@
 package clueless.networking;
 
 import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -18,6 +19,7 @@ import clueless.gamelogic.Move;
 import clueless.gamelogic.Player;
 import clueless.gamelogic.Room;
 import clueless.gamelogic.TurnEnforcement;
+import clueless.ui.ProveSuggestionWindow;
 
 /**
  * A SERVER-SIDE class that handles each connection made to the server with a different thread.
@@ -29,6 +31,8 @@ public class ConnectionHandler implements Runnable {
 	private int playerNumber;
 	private Player player;
 	private Game game;
+	private ProveSuggestionWindow disproveWindow;
+	private PrintWriter clientOut;
 	private BufferedReader clientIn = null;
 	private PrintWriter serverOut = null;
 	// Prefixes/constants for info that will be sent by the server to players (through broadcast or a singular message)
