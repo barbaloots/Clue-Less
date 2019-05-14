@@ -188,6 +188,9 @@ public class ClientConnection {
 						System.out.println("A correct accusation was made and the game is over.");
 						System.exit(0);
 					}
+					
+					// if serverInput.contains(waitingFor) && if it contains (this.character.getName()))
+					// homescreen.boardmethod.getwindow
 
 					// Don't use a new line if it's just the prompt character
 					if(serverInput.equals(">")) {
