@@ -70,7 +70,7 @@ public class ProveSuggestionWindow {
 				String selection = "";
 				for(AbstractButton button : Collections.list(cardsInHand.getElements())) {
 					if(button.isSelected()) {
-						selection = button.getText();
+						selection = "DS_" + button.getText();
 						break;
 					}
 				}
