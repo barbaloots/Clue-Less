@@ -300,4 +300,9 @@ public class Board {
 			e.printStackTrace();
 		}
 	}
+	
+	public void openDisproveWindow()
+	{
+		new ProveSuggestionWindow(board, player, clientOut);
+	}
 }
