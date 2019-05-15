@@ -214,6 +214,7 @@ public class Game {
 			Location startingLocation = character.getStartLocation();
 			// Create a new Player object
 			Player player = new Player(playerIsActive, abbreviation, name, startingLocation);
+			
 			// Add the Player object to the HashMap of Players, using their CharacterName as a key
 			this.players.add(player);
 			// Reset the playerIsActive boolean
@@ -304,11 +305,11 @@ public class Game {
 	 */
 	public boolean validateMove(Player player, String move) {
 		// Verify that the input is of the expected format
-		if(!validateInput(move)) {
+		/*if(!validateInput(move)) {
 			logger.info("Move " + move + " has an invalid format");
 			// If it fails, don't need to broadcast as it was just a user typo
 			return false;
-		}
+		}*/
 
 		// If a player enters 'Done', they've decided to end their turn
 		if(move.trim().equalsIgnoreCase(DONE_STR)) {
@@ -340,11 +341,18 @@ public class Game {
 			// Split the move string by the separator and extract the values
 			String[] values = move.split(Move.MOVE_SEP);
 			String endLoc = values[1];
-			int endLocX = Integer.parseInt(endLoc.substring(0,1));
-			int endLocY = Integer.parseInt(endLoc.substring(1,2));
+			int endLocX = Integer.parseInt(endLoc.split(",")[0]);
+			int endLocY = Integer.parseInt(endLoc.split(",")[1]);
 			logger.info("Move: " + move);
 			logger.info("endLocX: " + endLocX);
 			logger.info("endLocY: " + endLocY);
+			
+			if(endLocX > 4 || endLocX < 0 || endLocY > 4 || endLocY < 0) {
+				logger.info("Player " + player.getCharacterName().getCharacterName() + "'s move attempt went out of bounds. Invalid move.");
+				return false;
+			}
+			
+			
 			BoardLocationEntity destLocEntity = board[endLocX][endLocY];
 			logger.info("destLocEntity: " + destLocEntity.getName());
 
@@ -390,10 +398,7 @@ public class Game {
 			/*
 			 * Test to see if a move goes out of bounds
 			 */
-			if(endLocX > 4 || endLocX < 0 || endLocY > 4 || endLocY < 0) {
-				logger.info("Player " + player.getCharacterName().getCharacterName() + "'s move attempt went out of bounds. Invalid move.");
-				return false;
-			}
+
 
 			/*
 			 * Test to see if the move goes into an invalid location 
@@ -426,7 +431,9 @@ public class Game {
 			player.setNumMoves(player.getNumMoves() + 1);
 
 			// Broadcast the move so each client can update their boards
+			System.out.println("BEFORE");
 			broadcastNewLocation(player, destLocEntity);
+			System.out.println("AFTER");
 
 			// Update the Player's location
 			player.setLocation(new Location(endLocX, endLocY));

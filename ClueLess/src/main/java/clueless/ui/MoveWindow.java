@@ -36,9 +36,6 @@ public class MoveWindow
 {
 	public MoveWindow(JFrame parent, PrintWriter clientOut, Player currentPlayer)
 	{
-		int currentX = currentPlayer.getLocation().getX();
-		int currentY = currentPlayer.getLocation().getY();
-
 		JDialog window = new JDialog(parent, "Choose a direction or click 'Secret Passage'", true);
 		window.setLocationRelativeTo(null);
 		
@@ -53,11 +50,16 @@ public class MoveWindow
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				int desiredX = currentX - 1;
-				int desiredY = currentY;
+				int currentX = currentPlayer.getLocation().getX();
+				int currentY = currentPlayer.getLocation().getY();
+				
+				int desiredX = currentX;
+				int desiredY = currentY - 1;
 				
 				Movement movement = new Movement(new Location(desiredX, desiredY));
 				clientOut.println(movement.toString());
+				
+				window.dispose();
 				
 			}
 		}
@@ -68,11 +70,16 @@ public class MoveWindow
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				int desiredX = currentX + 1;
-				int desiredY = currentY;
+				int currentX = currentPlayer.getLocation().getX();
+				int currentY = currentPlayer.getLocation().getY();
+				
+				int desiredX = currentX;
+				int desiredY = currentY + 1;
 				
 				Movement movement = new Movement(new Location(desiredX, desiredY));
 				clientOut.println(movement.toString());
+				
+				window.dispose();
 				
 			}
 		}
@@ -83,11 +90,16 @@ public class MoveWindow
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				int desiredX = currentX;
-				int desiredY = currentY + 1;
+				int currentX = currentPlayer.getLocation().getX();
+				int currentY = currentPlayer.getLocation().getY();
+				
+				int desiredX = currentX - 1;
+				int desiredY = currentY;
 				
 				Movement movement = new Movement(new Location(desiredX, desiredY));
 				clientOut.println(movement.toString());
+				
+				window.dispose();
 				
 			}
 		}
@@ -98,11 +110,16 @@ public class MoveWindow
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				int desiredX = currentX;
-				int desiredY = currentY - 1;
+				int currentX = currentPlayer.getLocation().getX();
+				int currentY = currentPlayer.getLocation().getY();
+				
+				int desiredX = currentX + 1;
+				int desiredY = currentY;
 				
 				Movement movement = new Movement(new Location(desiredX, desiredY));
 				clientOut.println(movement.toString());
+				
+				window.dispose();
 				
 			}
 		}

@@ -75,12 +75,12 @@ public class Board {
 		board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		board.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		board.setTitle("Bar-Ba-Loots Clue-Less");
-		board.setResizable(false);
+		//board.setResizable(false);
 
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/ClueBoard.png"));
+			backgroundImage = ImageIO.read(new File("src/main/Resources/ClueBoard.png"));
 			panel = new JPanel(new BorderLayout()) {
 		
 				@Override
@@ -159,8 +159,8 @@ public class Board {
 			logTextArea.setEditable(false);
 			
 			PrintStream printStream = new PrintStream(new CustomOutputStream(logTextArea));
-			System.setOut(printStream);
-			System.setErr(printStream);
+			//System.setOut(printStream);
+			//System.setErr(printStream);
 					
 			//logPanel.add(new JScrollPane(logTextArea));
 			panel.add(new JScrollPane(logTextArea), BorderLayout.WEST);
@@ -177,12 +177,12 @@ public class Board {
 	
 	private void initGamePieces() {
 		try {
-			greenPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/GreenPiece.png"));
-			mustardPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/MustardPiece.png"));
-			peacockPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PeacockPiece.png"));			
-			plumPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/PlumPiece.png"));
-			scarletPiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/ScarletPiece.png"));	
-			whitePiece = ImageIO.read(new File("ClueLess/src/main/Resources/GamePieces/WhitePiece.png"));
+			greenPiece = ImageIO.read(new File("src/main/Resources/GamePieces/GreenPiece.png"));
+			mustardPiece = ImageIO.read(new File("src/main/Resources/GamePieces/MustardPiece.png"));
+			peacockPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PeacockPiece.png"));			
+			plumPiece = ImageIO.read(new File("src/main/Resources/GamePieces/PlumPiece.png"));
+			scarletPiece = ImageIO.read(new File("src/main/Resources/GamePieces/ScarletPiece.png"));	
+			whitePiece = ImageIO.read(new File("src/main/Resources/GamePieces/WhitePiece.png"));
 			
 			String playerAbbreviation = player.getAbbreviation();
 			
@@ -196,7 +196,7 @@ public class Board {
 			    	
 			}*/
 			
-			/*JPanel piecesPanel = new JPanel(new BorderLayout()) {
+			JPanel piecesPanel = new JPanel(new BorderLayout()) {
 				@Override
 				public void paintComponent(Graphics g) {
 					g.drawImage(greenPiece, MovementEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getX(), MovementEnum.CONSERVATORYTOBALLROOMHALLWAY.getLocation().getY(), null);
@@ -206,8 +206,8 @@ public class Board {
 					g.drawImage(scarletPiece, MovementEnum.HALLTOLOUNGEHALLWAY.getLocation().getX(), MovementEnum.HALLTOLOUNGEHALLWAY.getLocation().getY(), null);
 					g.drawImage(whitePiece, MovementEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getX(), MovementEnum.BALLROOMTOKITCHENHALLWAY.getLocation().getY(), null);					
 				}
-			};*/
-			
+			};
+			/*
 			JPanel greenPiecePanel = new JPanel(new BorderLayout()) {
 				@Override
 				public void paintComponent(Graphics g) {
@@ -277,7 +277,9 @@ public class Board {
 			
 			//panel.add(whitePiecePanel);
 			board.add(whitePiecePanel);
+			*/
 			
+			panel.add(piecesPanel);
 			panel.revalidate();
 			panel.repaint();
 			board.revalidate();

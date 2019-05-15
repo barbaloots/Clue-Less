@@ -46,9 +46,12 @@ public class HomeScreen extends JPanel {
 	/**
 	 * Constructor.
 	 */
+	//public HomeScreen(Game game, Player player, PrintWriter clientOut) {
 	public HomeScreen(PrintWriter clientOut) {
 		init();
 		this.clientOut = clientOut;
+		//this.player = player;
+		//this.game = game;
 	}
 	
 
@@ -67,7 +70,7 @@ public class HomeScreen extends JPanel {
 
 		
 		try {
-			backgroundImage = ImageIO.read(new File("ClueLess/src/main/Resources/CluePoster.png"));
+			backgroundImage = ImageIO.read(new File("src/main/Resources/CluePoster.png"));
 			JPanel panel = new JPanel(new BorderLayout()) {
 		
 				@Override
@@ -145,9 +148,14 @@ public class HomeScreen extends JPanel {
 		home.setVisible(true);
 	}
 	
-	public void callBoardMethod()
+	public void callDisproveWindow()
 	{
 		board.openDisproveWindow();
+	}
+	
+	public Player getPlayer()
+	{
+		return player;
 	}
 }
 

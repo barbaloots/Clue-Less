@@ -48,6 +48,9 @@ public class ProveSuggestionWindow {
 		label.setForeground(Color.BLACK);
 		panel.setPreferredSize(new Dimension(400, 400));
 		ButtonGroup cardsInHand = new ButtonGroup();
+		//String firstCard = player.getCurrentHand().get(0).toString().split(",")[1].split("=")[1].substring(0, player.getCurrentHand().get(0).toString().length() - 2);
+		//String secondCard = player.getCurrentHand().get(1).toString().split(",")[1].split("=")[1].substring(0, player.getCurrentHand().get(1).toString().length() - 2);
+		//String thirdCard = player.getCurrentHand().get(2).toString().split(",")[1].split("=")[1].substring(0, player.getCurrentHand().get(2).toString().length() - 2);
 		String firstCard = player.getCurrentHand().get(0).toString();
 		String secondCard = player.getCurrentHand().get(1).toString();
 		String thirdCard = player.getCurrentHand().get(2).toString();
@@ -81,6 +84,7 @@ public class ProveSuggestionWindow {
 		}
 	    );
 		
+		panel.add(submit);
 		window.add(panel);
 		window.pack();
 		window.setVisible(true);

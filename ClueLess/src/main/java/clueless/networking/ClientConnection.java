@@ -20,6 +20,7 @@ import clueless.gamelogic.BoardLocationEntity;
 import clueless.gamelogic.Card;
 import clueless.gamelogic.CharacterCard;
 import clueless.gamelogic.CharacterEnum;
+import clueless.gamelogic.Game;
 import clueless.gamelogic.Hallway;
 import clueless.gamelogic.InvalidLocation;
 import clueless.gamelogic.Location;
@@ -47,18 +48,20 @@ public class ClientConnection {
 	// Properties object to hold system configuration
 	private static Properties props = null;
 	// Path to properties file
-	private static final String propsPath = "ClueLess/resources/clueless.properties";
+	private static final String propsPath = "resources/clueless.properties";
 	// String constants for keys in properties file
 	private static final String PORT_NUMBER_KEY = "portNumber";
 	private static final String IP_ADDRESS_KEY = "ipAddress";
 	// Game-related constants
 	private static final String GAMEOVER = "GAMEOVER";
 	private static HomeScreen homescreen;
+	
+	private static Runnable serverInput;
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		// Configure log4j
-		DOMConfigurator.configure("ClueLess/log4jclient.xml");
+		DOMConfigurator.configure("log4jclient.xml");
 		Socket socket = null;
 		PrintWriter clientOut = null;
 		BufferedReader serverIn = null;
@@ -73,9 +76,13 @@ public class ClientConnection {
 			// Instantate a reader for reading messages from the server
 			serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			Runnable serverInput = new ServerInput(serverIn);
+			//Runnable serverInput = new ServerInput(serverIn);
+			
+			serverInput = new ServerInput(serverIn);
 			new Thread(serverInput).start();
+
 			homescreen = new HomeScreen(clientOut);
+			
 			// Print the acknowledgement from the server
 			//logger.info(serverIn.readLine());
 
@@ -114,7 +121,7 @@ public class ClientConnection {
 		private String characterName = null;
 		private ArrayList<Card> currentHand = null;
 		private BufferedReader serverIn;
-		// Prefixes for info that will be sent by the server (through broadcast or a singular message)
+		// Prefixes for info that will be sent by the server (through broadcast or a singular message) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		private static final String CHARACTER_NAME = "CN";
 		private static final String CARD = "CARD";
 		private static final String NEW_LOCATION = "NL";
@@ -134,6 +141,10 @@ public class ClientConnection {
 			this.board = new BoardLocationEntity[BOARD_WIDTH][BOARD_HEIGHT];
 			this.populateBoard();
 			this.printBoard();
+		}
+		
+		public Notebook getNotebook() {
+			return notebook;
 		}
 
 		/**
@@ -189,6 +200,9 @@ public class ClientConnection {
 						System.exit(0);
 					}
 					
+					if(serverInput.contains("Waiting for " +  characterName + " to disprove the suggestion")) {
+						homescreen.callDisproveWindow();
+					}
 					// if serverInput.contains(waitingFor) && if it contains (this.character.getName()))
 					// homescreen.boardmethod.getwindow
 
@@ -452,4 +466,10 @@ public class ClientConnection {
 			e.printStackTrace();
 		}
 	}
+	
+
+	
+	//private static Notebook notebook = null;
+	//private String characterName = null;
+	//private ArrayList<Card> currentHand = null;
 }
