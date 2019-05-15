@@ -75,7 +75,7 @@ public class Board {
 		board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		board.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		board.setTitle("Bar-Ba-Loots Clue-Less");
-		//board.setResizable(false);
+		board.setResizable(false);
 
 
 		
@@ -159,8 +159,8 @@ public class Board {
 			logTextArea.setEditable(false);
 			
 			PrintStream printStream = new PrintStream(new CustomOutputStream(logTextArea));
-			//System.setOut(printStream);
-			//System.setErr(printStream);
+			System.setOut(printStream);
+			System.setErr(printStream);
 					
 			//logPanel.add(new JScrollPane(logTextArea));
 			panel.add(new JScrollPane(logTextArea), BorderLayout.WEST);
